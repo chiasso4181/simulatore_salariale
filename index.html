@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulatore Salariale Ufficiale &amp; Verificatore OPers 2027</title>
+    <!-- Tailwind CSS CDN per lo stile grafico -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN per disegnare i grafici -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Configurazione dei colori personalizzati per Tailwind
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f4f8',
+                            100: '#d9e2ec',
+                            500: '#102a43',
+                            600: '#0b69a3',
+                            700: '#004e89',
+                            800: '#1a365d',
+                            accent: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 950px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 380px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 420px; }
+        }
+        .tab-btn.active {
+            border-bottom: 3px solid #004e89;
+            color: #004e89;
+            font-weight: 700;
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Intestazione del sito -->
+    <header class="bg-brand-800 text-white shadow-lg border-b-4 border-brand-accent">
+        <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <div class="flex items-center gap-2 text-xs uppercase tracking-widest text-amber-300 font-semibold mb-1">
+                    <span>&#9632; Amministrazione Federale Svizzera</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Simulatore Salariale Team 2027</h1>
+                <p class="text-slate-300 text-sm mt-1">Modello aggiornato con le basi di calcolo esatte SAP/UFPER</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- Sezione 1: Selezione Rapida dei 10 Dossier -->
+        <section class="bg-gradient-to-r from-slate-900 via-brand-800 to-slate-900 text-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-lg font-bold text-amber-300 mb-4">&#128100; Seleziona il collaboratore del team da verificare:</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                
+                <!-- Pulsanti per tutti i profili estratti dal PDF -->
+                <button onclick="loadProfile('caso0')" id="card-caso0" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
+                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Linda Crivelli</span></div>
+                    <p class="text-xs text-slate-300 mt-1">Cl. 17 / 3 Anni</p>
+                </button>
+                <button onclick="loadProfile('caso1')" id="card-caso1" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
+                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Filippo Giugno</span></div>
+                    <p class="text-xs text-slate-300 mt-1">Cl. 10 / 21 Anni</p>
+                </button>
+                <button onclick="loadProfile('caso2')" id="card-caso2" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
+                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Sylvio Meier</span></div>
+                    <p class="text-xs text-slate-300 mt-1">Cl. 18 / 17 Anni</p>
+                </button>
+                <button onclick="loadProfile('caso3')" id="card-caso3" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
+                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Tiziano Moresi</span></div>
+                    <p class="text-xs text-slate-300 mt-1">Cl. 10 / 21 Anni</p>
+                </button>
+                <button onclick="loadProfile('caso4')" id="card-caso4" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
+                    <div class="flex justify-between"><span class="font-bold text-sm text-white">P. Nussbaumer</span></div>
+                    <p class="text-xs text-slate-300 mt-1">Cl. 10 / 21 Anni</p>
+                </button>
+                <button onclick="loadProfile('caso5')" id="card-caso5" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
+                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Siuan Pasquini</span></div>
+                    <p class="text-xs text-slate-300 mt-1">Cl. 15 / 20 Anni</p>
+                </button>
+                <button onclick="loadProfile('caso6')" id="card-caso6" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
+                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Ramon Petsch</span></div>
+                    <p class="text-xs text-slate-300 mt-1">Cl. 17 / 14 Anni</p>
+                </button>
+                <button onclick="loadProfile('caso7')" id="card-caso7" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
+                    <div class="flex justify-between"><span class="font-bold text-sm text-slate-400">Ivan Romano</span></div>
+                    <p class="text-xs text-red-400 mt-1 font-bold">Dati Incompleti</p>
+                </button>
+                <button onclick="loadProfile('caso8')" id="card-caso8" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
+                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Sandro Valentini</span></div>
+                    <p class="text-xs text-slate-300 mt-1">Cl. 15 / 21 Anni</p>
+                </button>
+                <button onclick="loadProfile('caso9')" id="card-caso9" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
+                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Marino Verrengia</span></div>
+                    <p class="text-xs text-slate-300 mt-1">Cl. 18 / 5 Anni</p>
+                </button>
+
+            </div>
+        </section>
+
+        <!-- Sezione 2: Pannello di Input Manuale -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+            <h2 class="text-lg font-bold text-slate-800 mb-4">&#128221; Parametri di Calcolo</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Classe Salariale</label>
+                    <select id="input-class" onchange="onClassChange()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-brand-800 focus:outline-none"></select>
+                </div>
+                
+                <div class="bg-amber-50/50 p-2.5 rounded-lg border border-amber-200">
+                    <label class="block text-xs font-extrabold text-amber-900 uppercase mb-1">Stipendio Attuale (CHF)</label>
+                    <input type="number" id="input-salary" step="0.01" oninput="calculateAll()" class="w-full bg-white border border-amber-300 rounded-lg px-3 py-2 text-sm font-extrabold text-slate-900 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Anni Esperienza</label>
+                    <input type="number" id="input-exp" min="0" max="40" oninput="calculateAll()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Prestazioni</label>
+                    <select id="input-perf" onchange="calculateAll()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none">
+                        <option value="good" selected>Buone (Ordinaria)</option>
+                        <option value="plus_05">Ottime (+0.5%)</option>
+                        <option value="plus_10">Eccellenti (+1.0%)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Età Attuale (Anni)</label>
+                    <input type="number" id="input-age" placeholder="es. 40" oninput="calculateAll()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none">
+                </div>
+            </div>
+            
+            <!-- Barra dei traguardi informativi -->
+            <div class="mt-6 bg-slate-50 rounded-lg p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs border border-slate-200">
+                <div><span class="text-slate-500 block">Base di Classe (100%):</span><span class="font-bold text-slate-800 text-sm" id="disp-base">-</span></div>
+                <div><span class="text-slate-500 block">Soglia Pavimento:</span><span class="font-bold text-emerald-700 text-sm" id="disp-initial-exp">-</span></div>
+                <div><span class="text-slate-500 block">Target Evoluzione:</span><span class="font-bold text-brand-700 text-sm" id="disp-target-exp">-</span></div>
+                <div><span class="text-slate-500 block">Massimo di Classe (160%):</span><span class="font-bold text-slate-800 text-sm" id="disp-max">-</span></div>
+            </div>
+        </section>
+
+        <!-- Schede di Navigazione (Le tab in basso) -->
+        <div class="border-b border-slate-200 mb-6 bg-slate-100 p-1 rounded-xl flex flex-wrap gap-2 text-sm">
+            <button onclick="switchTab('tab-alignment')" id="btn-tab-alignment" class="tab-btn active px-4 py-2.5 rounded-lg">Analisi Singolo Caso</button>
+            <button onclick="switchTab('tab-dossiers')" id="btn-tab-dossiers" class="tab-btn px-4 py-2.5 rounded-lg">Confronto Tutti i Profili</button>
+            <button onclick="switchTab('tab-projection')" id="btn-tab-projection" class="tab-btn px-4 py-2.5 rounded-lg">Proiezione Grafica Futura</button>
+        </div>
+
+        <!-- TAB 1: Analisi Singola -->
+        <div id="tab-alignment" class="tab-content block space-y-6">
+            <div id="alignment-summary-card" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6"></div>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h3 class="text-base font-bold text-slate-800 mb-4">&#128269; Dettaglio Matematico</h3>
+                <div class="overflow-x-auto border rounded-lg">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-slate-100 text-slate-700 border-b">
+                            <tr><th class="p-3">Voce di Calcolo</th><th class="p-3 text-right">Valore CHF</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 font-mono text-slate-700" id="audit-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Confronto Tutti i Profili -->
+        <div id="tab-dossiers" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-6">Panoramica del team</h3>
+                <div id="dossiers-details" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Generato dinamicamente via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Proiezione Grafica -->
+        <div id="tab-projection" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-4">Proiezione indicativa fino alla pensione (65 anni)</h3>
+                <div class="chart-container"><canvas id="projectionChart"></canvas></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- SECONDA PARTE: IL CODICE JAVASCRIPT -->
+    <script>
+        // 1. Array completo di tutti i 10 profili dal PDF. 
+        // Nota: Ivan Romano ha la proprietà "incomplete: true" per gestire l'errore.
+        const PROFILES = {
+            caso0: { name: "Linda Crivelli", cls: 17, baseSalary: 75764.00, currentSalary: 67730.65, expYears: 3, age: 24, targetValExact: 89682.00, initialPavimentoExact: 82469.11, theoreticalIncExact: 3602.48, structAdjExact: 14822.35, finalSalaryExact: 82553.25, totalIncPctExact: 21.88, perf: 'good' },
+            caso1: { name: "Filippo Giugno", cls: 10, baseSalary: 58956.00, currentSalary: 90783.55, expYears: 21, age: 45, targetValExact: 88525.00, initialPavimentoExact: 84896.64, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 90783.55, totalIncPctExact: 0.00, perf: 'good' },
+            caso2: { name: "Sylvio Meier", cls: 18, baseSalary: 79197.00, currentSalary: 123200.35, expYears: 17, age: 50, targetValExact: 115943.00, initialPavimentoExact: 110598.61, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 123200.35, totalIncPctExact: 0.00, perf: 'good' },
+            caso3: { name: "Tiziano Moresi", cls: 10, baseSalary: 58956.00, currentSalary: 90783.55, expYears: 21, age: 48, targetValExact: 88525.00, initialPavimentoExact: 84896.64, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 90783.55, totalIncPctExact: 0.00, perf: 'good' },
+            caso4: { name: "Patrick Nussbaumer", cls: 10, baseSalary: 58956.00, currentSalary: 90783.55, expYears: 21, age: 49, targetValExact: 88525.00, initialPavimentoExact: 84896.64, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 90783.55, totalIncPctExact: 0.00, perf: 'good' },
+            caso5: { name: "Siuan Pasquini", cls: 15, baseSalary: 70196.00, currentSalary: 108784.65, expYears: 20, age: 46, targetValExact: 105401.00, initialPavimentoExact: 101082.24, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 109328.70, totalIncPctExact: 0.50, perf: 'good' },
+            caso6: { name: "Ramon Petsch", cls: 17, baseSalary: 75764.00, currentSalary: 97734.65, expYears: 14, age: 39, targetValExact: 107694.00, initialPavimentoExact: 102129.87, theoreticalIncExact: 2540.62, structAdjExact: 4498.35, finalSalaryExact: 102233.30, totalIncPctExact: 4.60, perf: 'good' },
+            caso7: { name: "Ivan Romano", cls: null, baseSalary: 0, currentSalary: 0, expYears: 0, age: 40, targetValExact: 0, initialPavimentoExact: 0, theoreticalIncExact: 0, structAdjExact: 0, finalSalaryExact: 0, totalIncPctExact: 0, perf: 'good', incomplete: true },
+            caso8: { name: "Sandro Valentini", cls: 15, baseSalary: 70196.00, currentSalary: 108784.65, expYears: 21, age: 60, targetValExact: 105401.00, initialPavimentoExact: 101082.24, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 108784.65, totalIncPctExact: 0.00, perf: 'good' },
+            caso9: { name: "Marino Verrengia", cls: 18, baseSalary: 79197.00, currentSalary: 95791.15, expYears: 5, age: 29, targetValExact: 98106.00, initialPavimentoExact: 90878.56, theoreticalIncExact: 3765.71, structAdjExact: 0.00, finalSalaryExact: 99063.90, totalIncPctExact: 3.42, perf: 'good' }
+        };
+
+        // Basi matematiche delle classi di stipendio
+        const OFFICIAL_CLASS_BASES = {};
+        for (let c = 1; c <= 38; c++) {
+            if (c === 10) OFFICIAL_CLASS_BASES[10] = 58956.00;
+            else if (c === 15) OFFICIAL_CLASS_BASES[15] = 70196.00;
+            else if (c === 17) OFFICIAL_CLASS_BASES[17] = 75764.00;
+            else if (c === 18) OFFICIAL_CLASS_BASES[18] = 79197.00;
+            else OFFICIAL_CLASS_BASES[c] = parseFloat((38000 + (c - 1) * 2365.0).toFixed(2));
+        }
+
+        let activeProfileKey = 'caso0';
+        let projectionChartInstance = null;
+
+        // Inizializzazione quando la pagina viene caricata
+        document.addEventListener('DOMContentLoaded', () => {
+            populateClassSelect();
+            generateComparativeCards();
+            loadProfile('caso0');
+        });
+
+        // Formule matematiche per calcolare i moltiplicatori in base all'esperienza
+        function getPavimentoMult(exp) { let p=1.0; p+=Math.min(Math.max(0,exp),5)*0.0295; if(exp>5) p+=Math.min(exp-5,5)*0.0245; if(exp>10) p+=Math.min(exp-10,5)*0.0195; if(exp>15) p+=Math.min(exp-15,5)*0.0145; return p; }
+        function getTargetMult(exp) { let p=1.10; p+=Math.min(Math.max(0,exp),5)*0.0275; if(exp>5) p+=Math.min(exp-5,5)*0.0225; if(exp>10) p+=Math.min(exp-10,5)*0.0175; if(exp>15) p+=Math.min(exp-15,5)*0.0125; return p; }
+        function getTheoRate(exp) { if(exp<=5) return 0.0475; if(exp<=10) return 0.0415; if(exp<=15) return 0.0335; if(exp<=20) return 0.0235; return 0.0; }
+        function formatCHF(val) { return (val || 0).toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+        // Popola il menu a tendina delle classi (da 1 a 38)
+        function populateClassSelect() {
+            const select = document.getElementById('input-class');
+            for (let c = 1; c <= 38; c++) select.add(new Option(`Classe ${c}`, c));
+        }
+
+        function onClassChange() { calculateAll(); }
+
+        // Gestisce il passaggio tra le diverse schede (Singolo Caso, Panoramica, Grafico)
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.add('active');
+        }
+
+        // Carica i dati di un profilo specifico quando clicchi sul suo pulsante
+        function loadProfile(key) {
+            activeProfileKey = key;
+            const p = PROFILES[key];
+            
+            // Ripristina i colori di tutti i pulsanti al grigio standard
+            document.querySelectorAll('[id^="card-"]').forEach(el => {
+                el.classList.remove('border-emerald-400', 'bg-slate-700', 'border-red-400', 'bg-red-900');
+                el.classList.add('border-slate-600', 'bg-slate-800');
+            });
+
+            // Gestione speciale per Ivan Romano (Dati incompleti)
+            if (p.incomplete) {
+                // Colora il pulsante di rosso
+                document.getElementById('card-' + key).classList.add('border-red-400', 'bg-red-900');
+                
+                // Pulisce i campi di input
+                document.getElementById('input-class').value = 1;
+                document.getElementById('input-salary').value = '';
+                document.getElementById('input-exp').value = '';
+                document.getElementById('input-age').value = '';
+                
+                // Mostra un avviso di errore nella scheda
+                document.getElementById('alignment-summary-card').innerHTML = `<h3 class="text-xl font-bold text-red-600 mb-2">Attenzione: Dati Incompleti</h3><p class="text-slate-600">I dati per <strong>${p.name}</strong> non sono disponibili o sono incompleti nel rapporto di sistema (es. tasso di occupazione 50% o salario non registrato). Impossibile effettuare una simulazione automatica.</p>`;
+                document.getElementById('audit-table-body').innerHTML = `<tr><td colspan="2" class="p-3 text-center text-slate-500 font-bold">Simulazione interrotta per mancanza di dati base.</td></tr>`;
+                
+                // Resetta i totali in alto
+                document.getElementById('disp-base').textContent = '-';
+                document.getElementById('disp-initial-exp').textContent = '-';
+                document.getElementById('disp-target-exp').textContent = '-';
+                document.getElementById('disp-max').textContent = '-';
+
+                // Distrugge il grafico se esiste
+                if (projectionChartInstance) projectionChartInstance.destroy();
+                return; // Ferma l'esecuzione della funzione qui
+            }
+
+            // Se il profilo è valido, colora il pulsante di verde
+            document.getElementById('card-' + key).classList.add('border-emerald-400', 'bg-slate-700');
+
+            // Inserisce i dati nei campi di testo
+            document.getElementById('input-class').value = p.cls;
+            document.getElementById('input-salary').value = p.currentSalary.toFixed(2);
+            document.getElementById('input-exp').value = p.expYears;
+            document.getElementById('input-perf').value = p.perf || 'good';
+            document.getElementById('input-age').value = p.age || '';
+
+            // Avvia i calcoli matematici
+            calculateAll();
+        }
+
+        // Cuore matematico del simulatore
+        function calculateAll() {
+            // Controlla se siamo su Ivan Romano (se sì, blocca i calcoli per evitare errori)
+            if (PROFILES[activeProfileKey].incomplete) return;
+
+            const cls = parseInt(document.getElementById('input-class').value) || 17;
+            const baseSalary = OFFICIAL_CLASS_BASES[cls];
+            const currentSalary = parseFloat(document.getElementById('input-salary').value) || 0;
+            const expYears = parseInt(document.getElementById('input-exp').value) || 0;
+            const perf = document.getElementById('input-perf').value;
+            
+            const userAgeInput = document.getElementById('input-age').value;
+            const chartAge = parseInt(userAgeInput) || 40; 
+
+            // Verifichiamo se l'utente ha modificato manualmente i dati a schermo rispetto al profilo originale
+            const p = PROFILES[activeProfileKey];
+            const isOriginal = p && p.cls === cls && Math.abs(p.currentSalary - currentSalary) < 1 && p.expYears === expYears;
+
+            const targetVal = isOriginal ? p.targetValExact : baseSalary * getTargetMult(expYears);
+            const pavimentoVal = isOriginal ? p.initialPavimentoExact : baseSalary * getPavimentoMult(expYears);
+            
+            let finalSalary = isOriginal ? p.finalSalaryExact : 0;
+            let structAdj = isOriginal ? p.structAdjExact : 0;
+            
+            // Ricalcolo necessario se i dati sono stati modificati a mano
+            if (!isOriginal) {
+                const theoInc = baseSalary * getTheoRate(expYears);
+                if (currentSalary >= targetVal) {
+                    finalSalary = currentSalary; structAdj = 0;
+                } else if (currentSalary + theoInc < pavimentoVal) {
+                    finalSalary = pavimentoVal; structAdj = pavimentoVal - currentSalary;
+                } else {
+                    finalSalary = Math.min(targetVal, currentSalary + theoInc); structAdj = 0;
+                }
+            }
+
+            // LA NOSTRA CORREZIONE: Calcolo separato e garantito per le Prestazioni
+            let performanceBonus = 0;
+            if (perf === 'plus_05') {
+                performanceBonus = currentSalary * 0.005;
+            } else if (perf === 'plus_10') {
+                performanceBonus = currentSalary * (currentSalary >= targetVal ? 0.005 : 0.010);
+            }
+            
+            // Somma finale
+            finalSalary += performanceBonus;
+
+            // Aggiorna l'interfaccia (riquadri in alto)
+            document.getElementById('disp-base').textContent = `CHF ${formatCHF(baseSalary)}`;
+            document.getElementById('disp-initial-exp').textContent = `CHF ${formatCHF(pavimentoVal)}`;
+            document.getElementById('disp-target-exp').textContent = `CHF ${formatCHF(targetVal)}`;
+            document.getElementById('disp-max').textContent = `CHF ${formatCHF(baseSalary * 1.6)}`;
+
+            // Crea la tabella dei dettagli
+            document.getElementById('audit-table-body').innerHTML = `
+                <tr><td class="p-3 font-bold text-slate-800">1. Stipendio Attuale</td><td class="p-3 text-right text-slate-800">CHF ${formatCHF(currentSalary)}</td></tr>
+                <tr class="bg-brand-50"><td class="p-3 font-bold text-brand-900">2. Target Evoluzione (Art. 39)</td><td class="p-3 text-right text-brand-800">CHF ${formatCHF(targetVal)}</td></tr>
+                <tr class="bg-emerald-50"><td class="p-3 font-bold text-emerald-900">3. Pavimento Minimo (Art. 37)</td><td class="p-3 text-right text-emerald-800">CHF ${formatCHF(pavimentoVal)}</td></tr>
+                <tr class="bg-amber-50"><td class="p-3 font-bold text-amber-900">4. Adeguamento Strutturale Riconosciuto</td><td class="p-3 text-right text-amber-800">CHF ${formatCHF(structAdj)}</td></tr>
+                ${performanceBonus > 0 ? `<tr class="bg-blue-50"><td class="p-3 font-bold text-blue-900">5. Bonus Prestazioni Eccellenti</td><td class="p-3 text-right text-blue-800">+ CHF ${formatCHF(performanceBonus)}</td></tr>` : ''}
+                <tr class="font-bold text-lg"><td class="p-3">Nuovo Stipendio Definitivo 2027</td><td class="p-3 text-right">CHF ${formatCHF(finalSalary)}</td></tr>
+            `;
+
+            // Messaggio dinamico per l'utente
+            let cardText = "Evoluzione calcolata secondo le regole base.";
+            if (structAdj > 0) cardText = "L'evoluzione ordinaria arriverebbe sotto la soglia di legge. Il sistema ha applicato un adeguamento d'ufficio per garantirti il Pavimento Minimo.";
+            if (currentSalary >= targetVal) cardText = "Il tuo stipendio attuale ha già raggiunto o superato il Target di Evoluzione. L'evoluzione ordinaria per te è del 0.00%.";
+            if (performanceBonus > 0) cardText += " È stato inoltre applicato un premio aggiuntivo per prestazioni eccellenti!";
+
+            document.getElementById('alignment-summary-card').innerHTML = `<h3 class="text-xl font-bold text-brand-800 mb-2">Esito del Calcolo: CHF ${formatCHF(finalSalary)}</h3><p class="text-slate-600">${cardText}</p>`;
+
+            // Chiama la funzione per disegnare il grafico
+            drawChart(currentSalary, finalSalary, expYears, chartAge, 65, baseSalary);
+        }
+
+        // Funzione per disegnare il grafico fino all'età della pensione
+        function drawChart(currentSal, finalSal, exp, age, retireAge, baseSalary) {
+            const years = Math.max(1, retireAge - age);
+            const labels = [];
+            const dataGood = [];
+            let sal = finalSal;
+
+            for (let i = 0; i <= years; i++) {
+                labels.push(`${age + i} anni`);
+                dataGood.push(sal);
+                const target = baseSalary * getTargetMult(exp + i);
+                if (sal < target) sal = Math.min(target, sal + baseSalary * getTheoRate(exp + i));
+            }
+
+            const ctx = document.getElementById('projectionChart').getContext('2d');
+            if (projectionChartInstance) projectionChartInstance.destroy();
+            projectionChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Evoluzione Salariale Prevista (CHF)',
+                        data: dataGood,
+                        borderColor: '#004e89',
+                        backgroundColor: 'rgba(0, 78, 137, 0.1)',
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        // Genera la tab dei confronti usando la lista dei profili, saltando i dati incompleti
+        function generateComparativeCards() {
+            let html = "";
+            for (let key in PROFILES) {
+                const p = PROFILES[key];
+                
+                if (p.incomplete) {
+                    html += `
+                    <div class="border rounded-xl p-5 bg-slate-100 border-slate-300 flex flex-col opacity-60">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-bold text-slate-500">${p.name}</span>
+                            <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-full">Dati Mancanti</span>
+                        </div>
+                        <p class="text-xs text-slate-500 text-center mt-4">Nessun dato strutturale disponibile per effettuare la comparazione.</p>
+                    </div>`;
+                    continue; // Passa al collaboratore successivo
+                }
+
+                const badge = p.structAdjExact > 0 ? "Protezione Pavimento" : (p.totalIncPctExact === 0 ? "Sopra Target" : "Evoluzione OK");
+                const color = p.structAdjExact > 0 ? "emerald" : (p.totalIncPctExact === 0 ? "purple" : "brand");
+                html += `
+                    <div class="border rounded-xl p-5 bg-${color}-50 border-${color}-200 flex flex-col">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-bold text-slate-800">${p.name}</span>
+                            <span class="bg-${color}-200 text-${color}-800 text-xs px-2 py-1 rounded-full">${badge}</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-1">Classe ${p.cls} - ${p.expYears} anni exp.</p>
+                        <p class="text-xs text-slate-600 mb-2">Da <strong>CHF ${formatCHF(p.currentSalary)}</strong> a <strong class="text-${color}-700">CHF ${formatCHF(p.finalSalaryExact)}</strong></p>
+                        <div class="mt-auto pt-2 border-t text-xs font-bold text-${color}-800">Aumento base stimato: +${p.totalIncPctExact}%</div>
+                    </div>`;
+            }
+            document.getElementById('dossiers-details').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
