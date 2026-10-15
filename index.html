@@ -1,464 +1,1873 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulatore Salariale Ufficiale &amp; Verificatore OPers 2027</title>
-    <!-- Tailwind CSS CDN per lo stile grafico -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN per disegnare i grafici -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Configurazione dei colori personalizzati per Tailwind
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0f4f8',
-                            100: '#d9e2ec',
-                            500: '#102a43',
-                            600: '#0b69a3',
-                            700: '#004e89',
-                            800: '#1a365d',
-                            accent: '#d97706',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #f8fafc;
-            color: #1e293b;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 950px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 380px;
-        }
-        @media (min-width: 768px) {
-            .chart-container { height: 420px; }
-        }
-        .tab-btn.active {
-            border-bottom: 3px solid #004e89;
-            color: #004e89;
-            font-weight: 700;
-            background-color: #ffffff;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano Vacanze - Dogana Chiasso</title>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+<style>
+:root{--primary:#2c3e50;--secondary:#3498db;--accent:#e74c3c;--success:#27ae60;--bg:#f4f7f6;--weekend:#f9ebea}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);margin:0;color:#333}
+.navbar{background:var(--primary);padding:10px 20px;display:flex;justify-content:space-between;align-items:center;color:#fff;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.navbar h1{margin:0;font-size:1.3rem}
+.nav-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{padding:8px 13px;border:none;border-radius:4px;cursor:pointer;font-weight:700;color:#fff;background:var(--secondary);font-size:.86rem}
+.btn:hover{opacity:.9}
+.btn-sync{background:#16a085;border:1px solid #1abc9c;display:inline-flex;align-items:center;gap:5px}
+.btn-export{background:#1e8449;border:2px solid #a9dfbf;display:inline-flex;align-items:center;gap:5px}
+.btn-report-prob{background:#d35400;border:2px solid #f1c40f}
+.btn-ranking{background:#f39c12;color:#000;border:2px solid #fff}
+.btn-logout{background:var(--accent)}
+.status-banner{padding:8px 20px;font-weight:700;text-align:center;color:#fff;font-size:.88rem}
+.status-open{background:var(--success)}
+.status-closed{background:var(--accent)}
+.status-admin-mode{background:#8e44ad;border-bottom:3px solid #f1c40f}
+.warning-reminder-bar{background:#fff3cd;color:#856404;border-bottom:2px solid #ffeeba;padding:8px 20px;font-size:.86rem;font-weight:700;display:none;justify-content:space-between;align-items:center}
+.ranking-turn-bar{background:#e8f8f5;color:#117864;border-bottom:2px solid #1abc9c;padding:8px 20px;font-size:.88rem;font-weight:700;display:none;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;justify-content:center;align-items:center;z-index:9999}
+.modal-card{background:#fff;padding:25px;border-radius:8px;width:430px;box-shadow:0 5px 25px rgba(0,0,0,.4);position:relative;z-index:10000;max-height:90vh;overflow-y:auto}
+.modal-card.large-modal{width:980px;max-width:96vw}
+.modal-card h2{margin-top:0;color:var(--primary);border-bottom:2px solid #eee;padding-bottom:10px;font-size:1.22rem}
+.view-section{padding:10px 14px;display:none}
+.view-section.active{display:block}
+.controls-bar{background:#fff;padding:8px 12px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);margin-bottom:8px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.filters-master-bar{background:#fff;padding:6px 12px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.view-switcher{display:flex;gap:4px;background:#ecf0f1;padding:4px;border-radius:6px}
+.view-btn{border:none;background:transparent;padding:6px 10px;border-radius:4px;font-weight:700;cursor:pointer;color:#2c3e50;font-size:.82rem}
+.view-btn.active{background:var(--secondary);color:#fff}
+.sub-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.83rem}
+select,input{padding:5px 8px;font-size:.85rem;border-radius:4px;border:1px solid #ccc;box-sizing:border-box}
+.listbox-multi-roles{width:100%;min-height:95px;border:2px solid var(--secondary);border-radius:4px;padding:2px;background:#fff;outline:none}
+.listbox-multi-roles option{padding:3px 7px;border-bottom:1px dashed #e2e8f0;font-weight:700;cursor:pointer;border-radius:3px;margin-bottom:1px;font-size:.77rem}
+.listbox-multi-roles option:checked{background:var(--secondary) linear-gradient(0deg,var(--secondary) 0%,var(--secondary) 100%);color:#fff}
+.multi-role-bar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;background:#f0f3f6;padding:4px 8px;border-radius:6px;border:1px solid #cbd5e1}
+.role-chip{padding:3px 9px;border-radius:14px;border:1px solid #94a3b8;background:#fff;color:#2c3e50;font-size:.75rem;font-weight:700;cursor:pointer;user-select:none;transition:.15s}
+.role-chip:hover{border-color:var(--secondary);background:#ebf5fb}
+.role-chip.active{background:var(--secondary);color:#fff;border-color:#1d6fa5;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.role-chip.active-unita{background:#16a085;color:#fff;border-color:#117864}
+.role-chip.active-gruppo{background:#8e44ad;color:#fff;border-color:#6c3483}
+.role-chip.preset-chip{background:#eaecee;color:#5d6d7e;border-style:dashed}
+.table-container{overflow:auto;max-height:73vh;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2);border:2px solid #000}
+table.excel-table{border-collapse:collapse;width:max-content;min-width:100%;font-family:Arial,sans-serif}
+table.excel-table th,table.excel-table td{border:1px solid #555;text-align:center;font-size:.78rem;box-sizing:border-box;padding:0}
+.sticky-c1{position:sticky;left:0;width:62px;min-width:62px;max-width:62px;z-index:20;background:#d9d9d9;font-weight:700;font-size:.72rem!important}
+.sticky-c2{position:sticky;left:62px;width:215px;min-width:215px;max-width:215px;z-index:20;background:#fff;text-align:left!important;padding:2px 6px!important;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sticky-c3{position:sticky;left:277px;width:48px;min-width:48px;max-width:48px;z-index:20;background:#fff;font-weight:700}
+.sticky-c4{position:sticky;left:325px;width:48px;min-width:48px;max-width:48px;z-index:20;background:#fff;font-weight:700}
+.sticky-c5{position:sticky;left:373px;width:48px;min-width:48px;max-width:48px;z-index:20;background:#fff;font-weight:700}
+.sticky-c6{position:sticky;left:421px;width:38px;min-width:38px;max-width:38px;z-index:20;background:#fff;font-weight:700}
+.sticky-c7{position:sticky;left:459px;width:46px;min-width:46px;max-width:46px;z-index:20;background:#fef9e7;color:#d35400;font-weight:700;border-right:2px solid #000!important}
+table.hide-extra-cols .collapsible-col{display:none!important}
+table.hide-extra-cols .sticky-c2{left:0!important;width:205px!important;min-width:205px!important;max-width:205px!important;border-right:2px solid #000!important}
+table.hide-extra-cols .summary-label{left:0!important;border-right:2px solid #000!important}
+table.fit-year-screen .row-ranges th:not(.sticky-c1):not(.sticky-c2):not(.sticky-c3):not(.sticky-c4):not(.sticky-c5):not(.sticky-c6):not(.sticky-c7){width:var(--week-fit-w,19px)!important;min-width:var(--week-fit-w,19px)!important;max-width:var(--week-fit-w,19px)!important;height:78px!important}
+table.fit-year-screen .vertical-range{font-size:.64rem!important;letter-spacing:-.3px}
+table.fit-year-screen .cell-data{width:var(--week-fit-w,19px)!important;min-width:var(--week-fit-w,19px)!important;max-width:var(--week-fit-w,19px)!important;font-size:.7rem!important}
+table.fit-year-screen .row-weeknums th:not(.collapsible-col),table.fit-year-screen .row-weekpts th{width:var(--week-fit-w,19px)!important;min-width:var(--week-fit-w,19px)!important;max-width:var(--week-fit-w,19px)!important;font-size:.64rem!important}
+table.fit-year-screen .row-tot-role td:not(.summary-left-idx):not(.summary-label),table.fit-year-screen .row-tot-final td:not(.summary-left-idx):not(.summary-label){font-size:.62rem!important}
+thead .sticky-c1,thead .sticky-c2,thead .sticky-c3,thead .sticky-c4,thead .sticky-c5,thead .sticky-c6,thead .sticky-c7{z-index:35!important;background:#f2f2f2}
+.title-assenze-yellow{background:#ff0!important;color:red!important;font-size:1rem!important;font-weight:700!important;border-bottom:2px solid #000!important;border-right:2px solid #000!important}
+.btn-inline-collapse{background:#2c3e50;color:#fff;border:1px solid #000;border-radius:3px;padding:1px 6px;font-size:.7rem;cursor:pointer;margin-left:6px;vertical-align:middle}
+.quota-ok{color:#1e8449;font-weight:700}
+.quota-partial{color:#2c3e50;font-weight:700}
+.quota-exceeded{background:#fcc!important;color:#c0392b!important;font-weight:700}
+.row-months th{position:sticky;top:0;z-index:25;background:#d9d9d9;color:#000;font-weight:700;font-size:.8rem;height:25px;border-top:2px solid #000!important;border-bottom:2px solid #000!important}
+.month-border-right{border-right:2px solid #000!important}
+.row-ranges th{position:sticky;top:25px;z-index:25;background:#fff;color:#000;font-weight:700;height:86px;width:28px;min-width:28px;max-width:28px;vertical-align:middle;border-bottom:1px solid #000!important}
+.vertical-range{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;display:inline-block;font-size:.72rem}
+.has-comment{position:relative}
+.sticky-c2.has-comment{position:sticky!important;text-align:left!important;padding-left:6px!important}
+.has-comment::after{content:'';position:absolute;top:0;right:0;border-width:0 6px 6px 0;border-style:solid;border-color:transparent #d00000 transparent transparent}
+.row-weeknums th{position:sticky;top:111px;z-index:25;background:#fff;color:#000;font-weight:700;font-size:.78rem;height:22px;border-bottom:1px solid #000!important}
+.row-weekpts th{position:sticky;top:133px;z-index:25;background:#fef9e7;color:#b7950b;font-weight:700;font-size:.68rem;height:18px;border-bottom:2px solid #000!important}
+.week-header-conflict{background:#e74c3c!important;color:#fff!important}
+tr.user-row td{height:23px}
+tr.my-row .sticky-c2,tr.my-row .sticky-c3,tr.my-row .sticky-c4,tr.my-row .sticky-c5,tr.my-row .sticky-c6,tr.my-row .sticky-c7{background:#d9ead3!important}
+tr.active-turn-row .sticky-c2{border-left:5px solid #f39c12!important;background:#FCF3CF!important}
+.cell-data{width:28px;min-width:28px;user-select:none;font-weight:700;font-size:.78rem;background:#fff;position:relative}
+.cell-data.editable{cursor:pointer}
+.cell-data.editable:hover{outline:2px solid #000;z-index:5}
+.cell-data.locked-cell{cursor:not-allowed}
+.weekend-col{background:var(--weekend)!important;color:#c0392b}
+.closure-cell{background:#7f8c8d!important;color:#fff!important}
+.val-K,.val-CORSO,.val-MIL{background:#8e44ad!important;color:#fff!important;font-weight:700}
+.cell-conflict{box-shadow:inset 0 0 0 2.5px #d00000!important;background-image:repeating-linear-gradient(-45deg,rgba(255,0,0,.15),rgba(255,0,0,.15) 4px,transparent 4px,transparent 8px)!important}
+.conflict-icon{font-size:.62rem;vertical-align:super;margin-left:-1px}
+.spacer-row td{height:12px;background:#fce4d6;border-top:1px solid #000;border-bottom:2px solid #000}
+.summary-label{position:sticky;left:62px;z-index:20;text-align:left!important;padding:3px 6px!important;font-weight:700;font-size:.8rem;border-right:2px solid #000!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.summary-left-idx{position:sticky;left:0;z-index:20;background:#c0c0c0!important;border-right:1px solid #000}
+.row-tot-complessive .summary-label{background:#f9f!important;color:#000}
+.row-tot-complessive td{height:25px;font-weight:700;color:#000;border-top:2px solid #000!important;border-bottom:2px solid #000!important}
+.tot-cell-conflict{background:#ff4d4d!important;color:#fff!important;font-weight:700}
+.row-tot-role .summary-label{background:#fce4d6!important;color:#04c}
+.row-tot-role td{height:23px;color:#04c;font-size:.73rem;font-weight:700;border-bottom:1px solid #000!important}
+.row-tot-final .summary-label{background:#fce4d6!important;color:#c00}
+.row-tot-final td{height:25px;color:#c00;font-size:.74rem;font-weight:700;border-top:2px solid #000!important;border-bottom:2px solid #000!important}
+.admin-container{max-width:1400px;margin:0 auto}
+.admin-top-bar{background:#fff;padding:15px 20px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,.1);margin-bottom:20px;border-left:5px solid #8e44ad}
+.tornate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:12px}
+.tornata-box{background:#f8f9fa;padding:12px;border-radius:6px;border:2px solid #dcdde1;transition:.2s}
+.tornata-box.active-tornata-box{border-color:#27ae60;background:#eafaf1;box-shadow:0 0 8px rgba(39,174,96,.25)}
+.tornata-box.overlap-error-box{border-color:#e74c3c!important;background:#fdedec!important;box-shadow:0 0 8px rgba(231,76,60,.4)!important}
+.tornata-box h4{margin:0 0 8px;color:#8e44ad;font-size:.92rem;display:flex;justify-content:space-between;align-items:center}
+.tornate-error-msg{background:#fdedec;color:#c0392b;border:1px solid #e74c3c;padding:8px 12px;border-radius:5px;font-size:.84rem;font-weight:700;margin-bottom:10px;display:none}
+.color-row{display:flex;gap:8px;margin-top:8px;padding-top:8px;border-top:1px dashed #ccc;align-items:center;justify-content:space-between}
+.color-pick-item{display:flex;align-items:center;gap:4px;font-size:.76rem;font-weight:700}
+.color-pick-item input[type="color"]{width:34px;height:26px;padding:1px;cursor:pointer;border:1px solid #777}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card{background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,.1)}
+.card.full-width{grid-column:1 / -1}
+.card h2{color:var(--secondary);margin-top:0;border-bottom:2px solid #ecf0f1;padding-bottom:10px;font-size:1.15rem}
+.form-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.form-row > div{flex:1;min-width:90px}
+.form-group{margin-bottom:10px}
+.form-group label{display:block;margin-bottom:4px;font-weight:700;font-size:.8rem;color:#333}
+.form-group input,.form-group select{width:100%}
+.btn-add{background:var(--success);color:#fff;border:none;padding:9px 15px;border-radius:4px;cursor:pointer;font-weight:700;width:100%;margin-top:5px}
+ul.list-data{list-style:none;padding:0;margin-top:10px;max-height:360px;overflow-y:auto}
+ul.list-data li{background:#eef2f5;padding:8px 12px;margin-bottom:6px;border-radius:4px;display:flex;justify-content:space-between;align-items:center;font-size:.82rem;gap:8px;flex-wrap:wrap}
+.btn-delete{color:var(--accent);cursor:pointer;font-weight:700;border:none;background:transparent;font-size:.95rem}
+.badge{font-size:.7rem;padding:2px 7px;border-radius:10px;font-weight:700;display:inline-block}
+.mini-quota-input{width:44px!important;padding:3px 4px!important;text-align:center;font-weight:700;font-size:.78rem!important}
+.mini-select-input{padding:3px 4px!important;font-weight:700;font-size:.76rem!important;width:auto!important}
+.report-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.84rem}
+.report-table th,.report-table td{border:1px solid #ccc;padding:7px 9px;text-align:left}
+.report-table th{background:#2c3e50;color:#fff}
+.report-table tr:nth-child(even){background:#f9f9f9}
+.pts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;background:#f8f9fa;padding:10px;border-radius:6px;border:1px solid #ddd;max-height:210px;overflow-y:auto}
+.pts-item{display:flex;flex-direction:column;align-items:center;background:#fff;border:1px solid #ccc;border-radius:4px;padding:4px}
+.pts-item span{font-size:.7rem;font-weight:700;color:#555}
+.pts-item input{width:54px;text-align:center;font-weight:700;padding:2px;font-size:.8rem;margin-top:2px;color:#d35400}
+.base-data-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.base-data-box{background:#f8f9fa;padding:8px;border-radius:6px;border:1px solid #e0e0e0}
+@media (max-width:950px){.admin-grid,.tornate-grid,.base-data-grid{grid-template-columns:1fr}}
+</style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body>
 
-    <!-- Intestazione del sito -->
-    <header class="bg-brand-800 text-white shadow-lg border-b-4 border-brand-accent">
-        <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <div class="flex items-center gap-2 text-xs uppercase tracking-widest text-amber-300 font-semibold mb-1">
-                    <span>&#9632; Amministrazione Federale Svizzera</span>
-                </div>
-                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Simulatore Salariale Team 2027</h1>
-                <p class="text-slate-300 text-sm mt-1">Modello aggiornato con le basi di calcolo esatte SAP/UFPER</p>
-            </div>
+<div id="authModal" class="modal-overlay">
+  <div class="modal-card">
+    <h2 id="modalTitle">Accesso Piano Vacanze</h2>
+    <div id="authMsg" style="color:#c0392b;font-size:.85rem;margin-bottom:10px;font-weight:700;min-height:18px"></div>
+    <div id="loginForm">
+      <div style="background:#eaf2f8;color:#1f618d;padding:8px 10px;border-radius:4px;font-size:.78rem;margin-bottom:12px;border-left:4px solid #2980b9">
+        💡 <b>Primo accesso?</b> Inserisci il tuo <b>Numero Personale</b> sia come Utente che come Password.<br>
+        🔒 <b>Password dimenticata?</b> Rivolgiti all'Amministratore per il ripristino.
+      </div>
+      <div class="form-group">
+        <label>Numero Personale (o Username Admin)</label>
+        <input type="text" id="logNrPers" placeholder="Es. 80732494" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="logPass" placeholder="Al 1° accesso inserisci il tuo Nr. Personale" onkeydown="if(event.key==='Enter')eseguiLogin()">
+      </div>
+      <button type="button" class="btn" id="btnLoginSubmit" style="width:100%;padding:10px" onclick="eseguiLogin()">Entra</button>
+    </div>
+    <div id="changePwdForm" style="display:none">
+      <div style="background:#fef9e7;color:#b7950b;padding:10px;border-radius:4px;font-size:.82rem;margin-bottom:12px;border:1px solid #f39c12;font-weight:700">
+        🔑 Primo accesso rilevato! Imposta ora una tua password personale (diversa dal Numero Personale).
+      </div>
+      <div class="form-group">
+        <label>Nuova Password Personale *</label>
+        <input type="password" id="newPwd1" placeholder="Scegli una nuova password">
+      </div>
+      <div class="form-group">
+        <label>Conferma Nuova Password *</label>
+        <input type="password" id="newPwd2" placeholder="Ripeti la nuova password" onkeydown="if(event.key==='Enter')confermaCambioPasswordPrimoAccesso()">
+      </div>
+      <button type="button" class="btn" id="btnSaveNewPwd" style="width:100%;background:var(--success);padding:10px" onclick="confermaCambioPasswordPrimoAccesso()">💾 Salva Password ed Entra</button>
+    </div>
+  </div>
+</div>
+
+<div id="rankingModal" class="modal-overlay" style="display:none">
+  <div class="modal-card large-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #eee;padding-bottom:10px;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+      <h2 style="margin:0;border:none;padding:0;color:#d35400">🏆 Graduatoria Ufficiale, Turni & Storico Punteggi Annuali</h2>
+      <button type="button" class="btn" style="background:#7f8c8d" onclick="chiudiModaleRanking()">✖ Chiudi</button>
+    </div>
+    <p style="font-size:.83rem;color:#555;margin-top:0">
+      • <b>Regola del Ranking:</b> Chi ha scelto le settimane più appetibili nell'anno precedente ha accumulato più punti; pertanto <b>nel Ranking sono primi (1°, 2°...) coloro che hanno MENO punti</b>.<br>
+      • La graduatoria dell'anno <b><span id="lblRankCurrYear">2027</span></b> legge i punteggi registrati per l'anno <b><span id="lblRankPrevYear">2026</span></b> nel foglio <b>"Storico_Punteggi_Ranking"</b>.
+    </p>
+    <div id="rankingTablesContainer"></div>
+    <hr style="margin:20px 0;border:none;border-top:2px dashed #ccc">
+    <h3 style="margin:0 0 8px;color:#2c3e50;font-size:1rem">📚 Archivio Storico Punteggi Consolidati (Foglio "Storico_Punteggi_Ranking")</h3>
+    <div id="storicoRankingArchiveContainer"></div>
+  </div>
+</div>
+
+<div id="reportProbModal" class="modal-overlay" style="display:none">
+  <div class="modal-card large-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #eee;padding-bottom:10px;margin-bottom:15px">
+      <h2 style="margin:0;border:none;padding:0;color:#d35400">⚠️ Report Problematiche & Registro Divergenze Appianate</h2>
+      <button type="button" class="btn" style="background:#7f8c8d" onclick="chiudiModaleReportProblematiche()">✖ Chiudi</button>
+    </div>
+    <h3 style="margin:0 0 6px;color:#c0392b;font-size:1rem">1. Divergenze Attive da Appianare</h3>
+    <div id="activeProblemsContainer" style="margin-bottom:20px"></div>
+    <div style="background:#fef9e7;border:2px solid #f39c12;border-radius:6px;padding:15px;margin-bottom:20px">
+      <h3 style="margin:0 0 10px;color:#d35400;font-size:.98rem">🤝 Registra Divergenza Appianata (Foglio "Divergenze_Appianate")</h3>
+      <div class="form-row">
+        <div class="form-group" style="flex:1.2"><label>Periodo / Settimana *</label><select id="divPeriodoSelect"></select></div>
+        <div class="form-group" style="flex:1.2"><label>Utente che ha ceduto *</label><select id="divUtenteCede"></select></div>
+        <div class="form-group" style="flex:1.2"><label>A favore del collega *</label><select id="divUtenteFavorito"></select></div>
+      </div>
+      <div class="form-row" style="align-items:center;margin-bottom:0">
+        <div class="form-group" style="flex:2;margin-bottom:0"><label>Note / Priorità anno successivo</label><input type="text" id="divNote" placeholder="Es. Cede Sett. 29 in 1° giro; priorità scelta estiva anno prossimo"></div>
+        <div style="flex:1.2;padding-top:14px"><label style="font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:6px"><input type="checkbox" id="chkRemoveCedeVacation" checked style="width:auto"> Rimuovi subito la 'V' a chi cede</label></div>
+        <div style="flex:.8;padding-top:14px"><button type="button" class="btn" id="btnSaveDivergenza" style="background:var(--success);width:100%" onclick="registraDivergenzaAppianata()">💾 Registra Accordo</button></div>
+      </div>
+    </div>
+    <h3 style="margin:0 0 6px;color:#2c3e50;font-size:1rem">2. Storico Divergenze Appianate</h3>
+    <div id="resolvedDivergenzeContainer"></div>
+  </div>
+</div>
+
+<div class="navbar">
+  <h1>Dogana Chiasso - Pianificazione Vacanze <span id="navYear">2027</span></h1>
+  <div class="nav-right">
+    <span id="userBadge" style="font-size:.84rem"></span>
+    <button type="button" class="btn btn-sync" id="btnManualSync" onclick="sincronizzaOraManuale()">🔄 Sincronizza <small id="lastSyncTime" style="font-weight:400;font-size:.72rem;opacity:.9"></small></button>
+    <button type="button" class="btn btn-export" id="btnExportExcel" onclick="esportaCalendarioExcelFormattato()">📥 Esporta Excel (.xlsx)</button>
+    <button type="button" class="btn btn-ranking" id="btnOpenRanking" onclick="apriModaleRanking()">🏆 Graduatoria / Turni Ranking</button>
+    <button type="button" class="btn" style="background:#2980b9;border:1px solid #fff" onclick="document.getElementById('legendaModal').style.display='flex'">ℹ️ Legenda</button>
+    <button type="button" class="btn btn-report-prob" id="btnReportProb" style="display:none" onclick="apriModaleReportProblematiche()">⚠️ Report Problematiche (<span id="badgeProbCount">0</span>)</button>
+    <button type="button" class="btn" id="btnSwitchView" style="display:none;background:#8e44ad" onclick="toggleView()">📅 Torna al Calendario</button>
+    <button type="button" class="btn btn-logout" onclick="logout()">Esci</button>
+  </div>
+</div>
+
+<div id="statusBanner" class="status-banner status-open">Connessione al foglio Google in corso...</div>
+
+<div id="rankingTurnBar" class="ranking-turn-bar">
+  <span id="rankingTurnText">🏆 Modalità Ranking attiva per la tua funzione.</span>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button type="button" class="btn" id="btnPassMyTurn" style="display:none;background:#27ae60;padding:5px 12px;font-size:.8rem" onclick="concludiMioTurnoRanking()">✅ Ho finito: Concludi il mio turno e passa al prossimo</button>
+    <button type="button" class="btn" style="background:#2c3e50;padding:5px 10px;font-size:.78rem" onclick="apriModaleRanking()">📋 Vedi Graduatoria Completa</button>
+  </div>
+</div>
+
+<div id="warningReminderBar" class="warning-reminder-bar">
+  <span id="warningReminderText">⚠️ Attenzione: sono presenti sovrapposizioni rispetto ai limiti di assenza contemporanea.</span>
+  <span style="font-size:.8rem">Passa il mouse sulle celle con ⚠️ per leggere il dettaglio.</span>
+</div>
+
+<div id="viewCalendar" class="view-section active">
+  <div class="controls-bar">
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <div class="view-switcher">
+        <button type="button" class="view-btn active" id="btnViewYear" onclick="setCalendarMode('year')">🗓️ Annuale</button>
+        <button type="button" class="view-btn" id="btnViewMonth" onclick="setCalendarMode('month')">📅 Mensile</button>
+        <button type="button" class="view-btn" id="btnViewWeek" onclick="setCalendarMode('week')">🔍 Settimanale</button>
+      </div>
+      <button type="button" class="btn" id="btnToggleCols" style="background:#34495e;padding:6px 10px;font-size:.78rem" onclick="toggleHideExtraColumns()">◀ Nascondi Colonne (V, F, PF, %, Pt)</button>
+      <button type="button" class="btn" id="btnToggleFitYear" style="background:#16a085;padding:6px 10px;font-size:.78rem" onclick="toggleFitYearScreen()">📐 Adatta Tutto l'Anno (Senza Scroll)</button>
+    </div>
+    <div class="sub-controls">
+      <div id="boxMonthSelect" style="display:none"><label><b>Mese:</b> </label><select id="monthSelector" onchange="renderCalendar()"><option value="0">Gennaio</option><option value="1">Febbraio</option><option value="2">Marzo</option><option value="3">Aprile</option><option value="4">Maggio</option><option value="5">Giugno</option><option value="6" selected>Luglio</option><option value="7">Agosto</option><option value="8">Settembre</option><option value="9">Ottobre</option><option value="10">Novembre</option><option value="11">Dicembre</option></select></div>
+      <div id="boxWeekSelect" style="display:none"><label><b>Settimana:</b> </label><select id="weekSelector" onchange="renderCalendar()"></select></div>
+      <div style="background:#e8f8f5;padding:3px 8px;border-radius:4px;border:1px solid #27ae60"><label style="color:#1e8449;font-weight:700">✏️ Inserisci:</label><select id="userAbsenceType"><option value="V">V (Vacanza)</option><option value="F">F (FLAZ)</option><option value="P">P (Premio Fedeltà)</option></select></div>
+      <div id="adminInsertBox" style="display:none;background:#f3e5f5;padding:3px 8px;border-radius:4px;border:1px solid #8e44ad"><label style="color:#8e44ad;font-weight:700">🛠️ Admin (No Log):</label><select id="adminAbsenceType"><option value="V">V (Vacanza)</option><option value="F">F (FLAZ)</option><option value="P">P (Premio fedeltà)</option><option value="K">K (Corso / Formazione)</option><option value="MIL">MIL (Militare/PC)</option></select></div>
+    </div>
+  </div>
+
+  <div class="filters-master-bar">
+    <div class="multi-role-bar">
+      <span style="font-weight:700;color:#2c3e50;font-size:.78rem">🔍 Funzione:</span>
+      <div id="multiRoleFilterContainer" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center"></div>
+    </div>
+    <div class="multi-role-bar" style="background:#e8f8f5;border-color:#a3e4d7">
+      <span style="font-weight:700;color:#117864;font-size:.78rem">🏢 Unità:</span>
+      <div id="multiUnitaFilterContainer" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center"></div>
+    </div>
+    <div class="multi-role-bar" style="background:#f5eef8;border-color:#d7bde2">
+      <span style="font-weight:700;color:#6c3483;font-size:.78rem">👥 Gruppo:</span>
+      <div id="multiGruppoFilterContainer" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center"></div>
+    </div>
+    <span id="activeFilterSummary" style="font-size:.76rem;color:#c0392b;font-weight:700"></span>
+  </div>
+
+  <div class="table-container"><table id="vacationTable" class="excel-table"><thead id="calHeader"></thead><tbody id="calBody"></tbody></table></div>
+</div>
+
+<div id="viewAdmin" class="view-section">
+  <div class="admin-container">
+    <div class="admin-top-bar">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h3 style="margin:0;color:#8e44ad">Programmazione Tornate, Attivazione Manuale & Colori Assenze (V, F, PF)</h3>
+          <small style="color:#555">Varranno esclusivamente le regole e i colori della tornata attiva.</small>
         </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
-
-        <!-- Sezione 1: Selezione Rapida dei 10 Dossier -->
-        <section class="bg-gradient-to-r from-slate-900 via-brand-800 to-slate-900 text-white rounded-xl shadow-md p-6 mb-8">
-            <h2 class="text-lg font-bold text-amber-300 mb-4">&#128100; Seleziona il collaboratore del team da verificare:</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                
-                <!-- Pulsanti per tutti i profili estratti dal PDF -->
-                <button onclick="loadProfile('caso0')" id="card-caso0" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
-                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Linda Crivelli</span></div>
-                    <p class="text-xs text-slate-300 mt-1">Cl. 17 / 3 Anni</p>
-                </button>
-                <button onclick="loadProfile('caso1')" id="card-caso1" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
-                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Filippo Giugno</span></div>
-                    <p class="text-xs text-slate-300 mt-1">Cl. 10 / 21 Anni</p>
-                </button>
-                <button onclick="loadProfile('caso2')" id="card-caso2" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
-                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Sylvio Meier</span></div>
-                    <p class="text-xs text-slate-300 mt-1">Cl. 18 / 17 Anni</p>
-                </button>
-                <button onclick="loadProfile('caso3')" id="card-caso3" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
-                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Tiziano Moresi</span></div>
-                    <p class="text-xs text-slate-300 mt-1">Cl. 10 / 21 Anni</p>
-                </button>
-                <button onclick="loadProfile('caso4')" id="card-caso4" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
-                    <div class="flex justify-between"><span class="font-bold text-sm text-white">P. Nussbaumer</span></div>
-                    <p class="text-xs text-slate-300 mt-1">Cl. 10 / 21 Anni</p>
-                </button>
-                <button onclick="loadProfile('caso5')" id="card-caso5" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
-                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Siuan Pasquini</span></div>
-                    <p class="text-xs text-slate-300 mt-1">Cl. 15 / 20 Anni</p>
-                </button>
-                <button onclick="loadProfile('caso6')" id="card-caso6" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
-                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Ramon Petsch</span></div>
-                    <p class="text-xs text-slate-300 mt-1">Cl. 17 / 14 Anni</p>
-                </button>
-                <button onclick="loadProfile('caso7')" id="card-caso7" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
-                    <div class="flex justify-between"><span class="font-bold text-sm text-slate-400">Ivan Romano</span></div>
-                    <p class="text-xs text-red-400 mt-1 font-bold">Dati Incompleti</p>
-                </button>
-                <button onclick="loadProfile('caso8')" id="card-caso8" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
-                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Sandro Valentini</span></div>
-                    <p class="text-xs text-slate-300 mt-1">Cl. 15 / 21 Anni</p>
-                </button>
-                <button onclick="loadProfile('caso9')" id="card-caso9" class="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 transition text-left">
-                    <div class="flex justify-between"><span class="font-bold text-sm text-white">Marino Verrengia</span></div>
-                    <p class="text-xs text-slate-300 mt-1">Cl. 18 / 5 Anni</p>
-                </button>
-
-            </div>
-        </section>
-
-        <!-- Sezione 2: Pannello di Input Manuale -->
-        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-            <h2 class="text-lg font-bold text-slate-800 mb-4">&#128221; Parametri di Calcolo</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Classe Salariale</label>
-                    <select id="input-class" onchange="onClassChange()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-brand-800 focus:outline-none"></select>
-                </div>
-                
-                <div class="bg-amber-50/50 p-2.5 rounded-lg border border-amber-200">
-                    <label class="block text-xs font-extrabold text-amber-900 uppercase mb-1">Stipendio Attuale (CHF)</label>
-                    <input type="number" id="input-salary" step="0.01" oninput="calculateAll()" class="w-full bg-white border border-amber-300 rounded-lg px-3 py-2 text-sm font-extrabold text-slate-900 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Anni Esperienza</label>
-                    <input type="number" id="input-exp" min="0" max="40" oninput="calculateAll()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Prestazioni</label>
-                    <select id="input-perf" onchange="calculateAll()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none">
-                        <option value="good" selected>Buone (Ordinaria)</option>
-                        <option value="plus_05">Ottime (+0.5%)</option>
-                        <option value="plus_10">Eccellenti (+1.0%)</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Età Attuale (Anni)</label>
-                    <input type="number" id="input-age" placeholder="es. 40" oninput="calculateAll()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none">
-                </div>
-            </div>
-            
-            <!-- Barra dei traguardi informativi -->
-            <div class="mt-6 bg-slate-50 rounded-lg p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs border border-slate-200">
-                <div><span class="text-slate-500 block">Base di Classe (100%):</span><span class="font-bold text-slate-800 text-sm" id="disp-base">-</span></div>
-                <div><span class="text-slate-500 block">Soglia Pavimento:</span><span class="font-bold text-emerald-700 text-sm" id="disp-initial-exp">-</span></div>
-                <div><span class="text-slate-500 block">Target Evoluzione:</span><span class="font-bold text-brand-700 text-sm" id="disp-target-exp">-</span></div>
-                <div><span class="text-slate-500 block">Massimo di Classe (160%):</span><span class="font-bold text-slate-800 text-sm" id="disp-max">-</span></div>
-            </div>
-        </section>
-
-        <!-- Schede di Navigazione (Le tab in basso) -->
-        <div class="border-b border-slate-200 mb-6 bg-slate-100 p-1 rounded-xl flex flex-wrap gap-2 text-sm">
-            <button onclick="switchTab('tab-alignment')" id="btn-tab-alignment" class="tab-btn active px-4 py-2.5 rounded-lg">Analisi Singolo Caso</button>
-            <button onclick="switchTab('tab-dossiers')" id="btn-tab-dossiers" class="tab-btn px-4 py-2.5 rounded-lg">Confronto Tutti i Profili</button>
-            <button onclick="switchTab('tab-projection')" id="btn-tab-projection" class="tab-btn px-4 py-2.5 rounded-lg">Proiezione Grafica Futura</button>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <label style="font-weight:700;font-size:.85rem;color:#2c3e50">Stato / Override:</label>
+          <select id="manualTornataSelect" onchange="cambiaOverrideManualeTornata()" style="font-weight:700;border:2px solid #8e44ad;background:#f3e5f5">
+            <option value="AUTO">🕒 Automatico (Per date)</option>
+            <option value="1">🟢 FORZA ATTIVA: 1ª Tornata</option>
+            <option value="2">🟢 FORZA ATTIVA: 2ª Tornata</option>
+            <option value="3">🟢 FORZA ATTIVA: 3ª Tornata</option>
+            <option value="CLOSED">🔴 DISATTIVA TUTTE (Bloccato)</option>
+          </select>
+          <button type="button" class="btn" id="btnExportExcelAdmin" style="background:#1e8449;padding:10px 18px;font-size:.95rem" onclick="esportaCalendarioExcelFormattato()">📥 Esporta Calendario Excel (.xlsx)</button>
+          <button type="button" class="btn" style="background:var(--success);padding:10px 24px;font-size:1rem" onclick="salvaTuttoSuGoogle()">💾 Salva</button>
         </div>
+      </div>
 
-        <!-- TAB 1: Analisi Singola -->
-        <div id="tab-alignment" class="tab-content block space-y-6">
-            <div id="alignment-summary-card" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6"></div>
-            
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <h3 class="text-base font-bold text-slate-800 mb-4">&#128269; Dettaglio Matematico</h3>
-                <div class="overflow-x-auto border rounded-lg">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead class="bg-slate-100 text-slate-700 border-b">
-                            <tr><th class="p-3">Voce di Calcolo</th><th class="p-3 text-right">Valore CHF</th></tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200 font-mono text-slate-700" id="audit-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
+      <div id="tornateOverlapError" class="tornate-error-msg"></div>
+
+      <div class="tornate-grid">
+        <div class="tornata-box" id="boxTornata1">
+          <h4><span>1ª Tornata (1° Giro - No PF)</span> <button type="button" class="btn" id="btnForceT1" style="padding:3px 8px;font-size:.74rem" onclick="toggleManualTornataBtn(1)">Attiva Manualmente</button></h4>
+          <div class="form-row" style="margin-bottom:0">
+            <div><label style="font-size:.74rem">Apertura</label><input type="datetime-local" id="t1_start" onchange="validaDateTornate()"></div>
+            <div><label style="font-size:.74rem">Chiusura</label><input type="datetime-local" id="t1_end" onchange="validaDateTornate()"></div>
+          </div>
+          <div class="color-row">
+            <span style="font-size:.75rem;color:#555">Colori 1° Giro:</span>
+            <label class="color-pick-item">V <input type="color" id="t1_colV" value="#ffff00"></label>
+            <label class="color-pick-item">F <input type="color" id="t1_colF" value="#bfbfbf"></label>
+            <label class="color-pick-item">PF <input type="color" id="t1_colP" value="#ff99cc"></label>
+          </div>
         </div>
-
-        <!-- TAB 2: Confronto Tutti i Profili -->
-        <div id="tab-dossiers" class="tab-content hidden space-y-6">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <h3 class="text-lg font-bold text-slate-800 mb-6">Panoramica del team</h3>
-                <div id="dossiers-details" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Generato dinamicamente via JS -->
-                </div>
-            </div>
+        <div class="tornata-box" id="boxTornata2">
+          <h4><span>2ª Tornata (2° Giro - V, FLAZ, PF)</span> <button type="button" class="btn" id="btnForceT2" style="padding:3px 8px;font-size:.74rem" onclick="toggleManualTornataBtn(2)">Attiva Manualmente</button></h4>
+          <div class="form-row" style="margin-bottom:0">
+            <div><label style="font-size:.74rem">Apertura</label><input type="datetime-local" id="t2_start" onchange="validaDateTornate()"></div>
+            <div><label style="font-size:.74rem">Chiusura</label><input type="datetime-local" id="t2_end" onchange="validaDateTornate()"></div>
+          </div>
+          <div class="color-row">
+            <span style="font-size:.75rem;color:#555">Colori 2° Giro:</span>
+            <label class="color-pick-item">V <input type="color" id="t2_colV" value="#ffff00"></label>
+            <label class="color-pick-item">F <input type="color" id="t2_colF" value="#bfbfbf"></label>
+            <label class="color-pick-item">PF <input type="color" id="t2_colP" value="#ff99cc"></label>
+          </div>
         </div>
-
-        <!-- TAB 3: Proiezione Grafica -->
-        <div id="tab-projection" class="tab-content hidden space-y-6">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <h3 class="text-lg font-bold text-slate-800 mb-4">Proiezione indicativa fino alla pensione (65 anni)</h3>
-                <div class="chart-container"><canvas id="projectionChart"></canvas></div>
-            </div>
+        <div class="tornata-box" id="boxTornata3">
+          <h4><span>3ª Tornata (3° Giro - Completamento)</span> <button type="button" class="btn" id="btnForceT3" style="padding:3px 8px;font-size:.74rem" onclick="toggleManualTornataBtn(3)">Attiva Manualmente</button></h4>
+          <div class="form-row" style="margin-bottom:0">
+            <div><label style="font-size:.74rem">Apertura</label><input type="datetime-local" id="t3_start" onchange="validaDateTornate()"></div>
+            <div><label style="font-size:.74rem">Chiusura</label><input type="datetime-local" id="t3_end" onchange="validaDateTornate()"></div>
+          </div>
+          <div class="color-row">
+            <span style="font-size:.75rem;color:#555">Colori 3° Giro:</span>
+            <label class="color-pick-item">V <input type="color" id="t3_colV" value="#ffff00"></label>
+            <label class="color-pick-item">F <input type="color" id="t3_colF" value="#bfbfbf"></label>
+            <label class="color-pick-item">PF <input type="color" id="t3_colP" value="#ff99cc"></label>
+          </div>
         </div>
+      </div>
+    </div>
 
-    </main>
+    <div class="admin-grid">
+      <div class="card">
+        <h2>1. Impostazioni Generali Calendario & Dati di Base</h2>
+        <div class="form-row">
+          <div class="form-group"><label>Anno Calendario</label><input type="number" id="adminYear" value="2027" onchange="updateYear()"></div>
+          <div class="form-group"><label>Max Assenze Annuali (Settimane)</label><input type="number" id="maxWeeks" value="8"></div>
+        </div>
+        <div class="base-data-grid">
+          <div class="base-data-box">
+            <label style="font-weight:700;font-size:.78rem;display:block;margin-bottom:4px">1. Funzioni (es. Cgr, REV, M, P)</label>
+            <div style="display:flex;gap:4px"><input type="text" id="newRoleName" placeholder="Es. M o P" style="padding:4px"><button type="button" class="btn" style="padding:4px 8px;font-size:.75rem" onclick="addBaseItem('funzioni','newRoleName')">+</button></div>
+            <div id="rolesTagContainer" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap"></div>
+          </div>
+          <div class="base-data-box">
+            <label style="font-weight:700;font-size:.78rem;display:block;margin-bottom:4px">2. Gradi (es. Sgtm, Cpl, App)</label>
+            <div style="display:flex;gap:4px"><input type="text" id="newGradoName" placeholder="Es. Sgtm" style="padding:4px"><button type="button" class="btn" style="padding:4px 8px;font-size:.75rem" onclick="addBaseItem('gradi','newGradoName')">+</button></div>
+            <div id="gradiTagContainer" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap"></div>
+          </div>
+          <div class="base-data-box">
+            <label style="font-weight:700;font-size:.78rem;display:block;margin-bottom:4px">3. Unità (es. Unità 1, Unità 3)</label>
+            <div style="display:flex;gap:4px"><input type="text" id="newUnitaName" placeholder="Es. Unità 3" style="padding:4px"><button type="button" class="btn" style="padding:4px 8px;font-size:.75rem" onclick="addBaseItem('unita','newUnitaName')">+</button></div>
+            <div id="unitaTagContainer" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap"></div>
+          </div>
+          <div class="base-data-box">
+            <label style="font-weight:700;font-size:.78rem;display:block;margin-bottom:4px">4. Gruppi (es. Gruppo 3, Gruppo 5)</label>
+            <div style="display:flex;gap:4px"><input type="text" id="newGruppoName" placeholder="Es. Gruppo 5" style="padding:4px"><button type="button" class="btn" style="padding:4px 8px;font-size:.75rem" onclick="addBaseItem('gruppi','newGruppoName')">+</button></div>
+            <div id="gruppiTagContainer" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap"></div>
+          </div>
+        </div>
+        <label style="font-weight:700;font-size:.82rem;display:block;margin-bottom:4px">Aggiungi Giornata di Chiusura / Festività</label>
+        <div class="form-row" style="align-items:flex-end;margin-bottom:4px">
+          <div class="form-group" style="margin-bottom:0"><input type="date" id="closureDate"></div>
+          <div class="form-group" style="margin-bottom:0"><input type="text" id="closureName" placeholder="Es. Pasqua"></div>
+          <div style="flex:.5"><button type="button" class="btn-add" style="margin-top:0;padding:6px" onclick="addClosure()">Aggiungi</button></div>
+        </div>
+        <ul class="list-data" id="adminClosureList" style="max-height:110px"></ul>
+      </div>
 
-    <!-- SECONDA PARTE: IL CODICE JAVASCRIPT -->
-    <script>
-        // 1. Array completo di tutti i 10 profili dal PDF. 
-        // Nota: Ivan Romano ha la proprietà "incomplete: true" per gestire l'errore.
-        const PROFILES = {
-            caso0: { name: "Linda Crivelli", cls: 17, baseSalary: 75764.00, currentSalary: 67730.65, expYears: 3, age: 24, targetValExact: 89682.00, initialPavimentoExact: 82469.11, theoreticalIncExact: 3602.48, structAdjExact: 14822.35, finalSalaryExact: 82553.25, totalIncPctExact: 21.88, perf: 'good' },
-            caso1: { name: "Filippo Giugno", cls: 10, baseSalary: 58956.00, currentSalary: 90783.55, expYears: 21, age: 45, targetValExact: 88525.00, initialPavimentoExact: 84896.64, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 90783.55, totalIncPctExact: 0.00, perf: 'good' },
-            caso2: { name: "Sylvio Meier", cls: 18, baseSalary: 79197.00, currentSalary: 123200.35, expYears: 17, age: 50, targetValExact: 115943.00, initialPavimentoExact: 110598.61, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 123200.35, totalIncPctExact: 0.00, perf: 'good' },
-            caso3: { name: "Tiziano Moresi", cls: 10, baseSalary: 58956.00, currentSalary: 90783.55, expYears: 21, age: 48, targetValExact: 88525.00, initialPavimentoExact: 84896.64, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 90783.55, totalIncPctExact: 0.00, perf: 'good' },
-            caso4: { name: "Patrick Nussbaumer", cls: 10, baseSalary: 58956.00, currentSalary: 90783.55, expYears: 21, age: 49, targetValExact: 88525.00, initialPavimentoExact: 84896.64, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 90783.55, totalIncPctExact: 0.00, perf: 'good' },
-            caso5: { name: "Siuan Pasquini", cls: 15, baseSalary: 70196.00, currentSalary: 108784.65, expYears: 20, age: 46, targetValExact: 105401.00, initialPavimentoExact: 101082.24, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 109328.70, totalIncPctExact: 0.50, perf: 'good' },
-            caso6: { name: "Ramon Petsch", cls: 17, baseSalary: 75764.00, currentSalary: 97734.65, expYears: 14, age: 39, targetValExact: 107694.00, initialPavimentoExact: 102129.87, theoreticalIncExact: 2540.62, structAdjExact: 4498.35, finalSalaryExact: 102233.30, totalIncPctExact: 4.60, perf: 'good' },
-            caso7: { name: "Ivan Romano", cls: null, baseSalary: 0, currentSalary: 0, expYears: 0, age: 40, targetValExact: 0, initialPavimentoExact: 0, theoreticalIncExact: 0, structAdjExact: 0, finalSalaryExact: 0, totalIncPctExact: 0, perf: 'good', incomplete: true },
-            caso8: { name: "Sandro Valentini", cls: 15, baseSalary: 70196.00, currentSalary: 108784.65, expYears: 21, age: 60, targetValExact: 105401.00, initialPavimentoExact: 101082.24, theoreticalIncExact: 0.00, structAdjExact: 0.00, finalSalaryExact: 108784.65, totalIncPctExact: 0.00, perf: 'good' },
-            caso9: { name: "Marino Verrengia", cls: 18, baseSalary: 79197.00, currentSalary: 95791.15, expYears: 5, age: 29, targetValExact: 98106.00, initialPavimentoExact: 90878.56, theoreticalIncExact: 3765.71, structAdjExact: 0.00, finalSalaryExact: 99063.90, totalIncPctExact: 3.42, perf: 'good' }
-        };
+      <div class="card">
+        <h2>2. Gestione Collaboratori (La password iniziale è il Nr. Personale)</h2>
+        <div class="form-row" style="margin-bottom:6px">
+          <div class="form-group" style="flex:.8;margin-bottom:0"><label>Nr. Pers.</label><input type="text" id="addUserNr" placeholder="Es. 80732494"></div>
+          <div class="form-group" style="flex:1.4;margin-bottom:0"><label>Cognome Nome</label><input type="text" id="addUserName" placeholder="Es. Giudici Carlo"></div>
+          <div class="form-group" style="flex:.8;margin-bottom:0"><label>Grado</label><select id="addUserGrado"></select></div>
+        </div>
+        <div class="form-row" style="margin-bottom:6px">
+          <div class="form-group" style="margin-bottom:0"><label>Funzione</label><select id="addUserRole"></select></div>
+          <div class="form-group" style="margin-bottom:0"><label>Unità</label><select id="addUserUnita"></select></div>
+          <div class="form-group" style="margin-bottom:0"><label>Gruppo</label><select id="addUserGruppo"></select></div>
+        </div>
+        <div class="form-row" style="background:#f4f9f5;padding:8px;border-radius:6px;border:1px solid #c3e6cb;margin-bottom:8px">
+          <div class="form-group" style="margin-bottom:0"><label>% Lav.</label><input type="number" id="addUserPerc" value="100" min="10" max="100" step="5"></div>
+          <div class="form-group" style="margin-bottom:0"><label>Diritto V</label><input type="number" id="addUserDirV" value="5" min="0" max="8"></div>
+          <div class="form-group" style="margin-bottom:0"><label>Diritto F</label><input type="number" id="addUserDirF" value="0" min="0" max="5"></div>
+          <div class="form-group" style="margin-bottom:0"><label>Diritto PF</label><input type="number" id="addUserDirPF" value="0" min="0" max="4"></div>
+          <div class="form-group" style="margin-bottom:0"><label>Pt. Prec.</label><input type="number" id="addUserPtPrec" value="0" step="1"></div>
+        </div>
+        <button type="button" class="btn-add" onclick="addCollaborator()">Aggiungi Collaboratore (Password iniziale = Nr. Personale)</button>
+        <ul class="list-data" id="adminUserList"></ul>
+      </div>
 
-        // Basi matematiche delle classi di stipendio
-        const OFFICIAL_CLASS_BASES = {};
-        for (let c = 1; c <= 38; c++) {
-            if (c === 10) OFFICIAL_CLASS_BASES[10] = 58956.00;
-            else if (c === 15) OFFICIAL_CLASS_BASES[15] = 70196.00;
-            else if (c === 17) OFFICIAL_CLASS_BASES[17] = 75764.00;
-            else if (c === 18) OFFICIAL_CLASS_BASES[18] = 79197.00;
-            else OFFICIAL_CLASS_BASES[c] = parseFloat((38000 + (c - 1) * 2365.0).toFixed(2));
+      <div class="card full-width">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #ecf0f1;padding-bottom:10px;margin-bottom:10px">
+          <h2 style="margin:0;border:none;padding:0">3. Regole di Assenza e Formattazione (Per Funzione, Unità e/o Gruppo)</h2>
+          <button type="button" class="btn" style="background:#e67e22;font-size:.8rem" onclick="ripristinaRegoleDefaultDirettiva()">🔄 Ripristina e Salva Regole Direttiva</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label>1) Genere di Regola</label><select id="ruleKind" onchange="toggleRuleBuilderUI()" style="font-weight:700;border:2px solid var(--secondary)"><option value="absence">🛑 Regola di Assenza (Per Funzione, Unità e/o Gruppo)</option><option value="format">🎨 Regola di Formattazione (Colore e Annotazione Periodo)</option></select></div>
+          <div class="form-group" style="flex:1"><label>Modalità Scelta del Periodo</label><select id="rulePeriodType" onchange="togglePeriodInputUI()"><option value="weeks">Per Numero di Settimana/e (es. 1-53 oppure 6, 13, 44, 51, 52)</option><option value="dates">Con Calendario (Data Inizio / Data Fine)</option></select></div>
+          <div class="form-group" id="boxRuleWeeks" style="flex:1.2"><label>Numero Settimana o Settimane</label><input type="text" id="ruleWeeksInput" placeholder="Es. 1-53 oppure 6, 13, 44, 51, 52"></div>
+          <div class="form-group" id="boxRuleDates" style="display:none;flex:1.5"><label>Dal / Al (Calendario)</label><div style="display:flex;gap:6px"><input type="date" id="ruleDateStart"><input type="date" id="ruleDateEnd"></div></div>
+        </div>
+        <div id="sectionFormatRule" style="display:none;background:#f8f9fa;padding:15px;border-radius:6px;border-left:4px solid #f39c12">
+          <div class="form-row" style="margin-bottom:0">
+            <div class="form-group" style="flex:.5;max-width:160px"><label>Scelta Colore Colonna</label><input type="color" id="formatColorInput" value="#ffccff" style="height:36px;padding:2px;cursor:pointer"></div>
+            <div class="form-group" style="flex:2"><label>Annotazione Genere di Periodo</label><input type="text" id="formatCommentInput" placeholder="Es. Vacanze scolastiche..."></div>
+          </div>
+        </div>
+        <div id="sectionAbsenceRule" style="display:block;background:#f8f9fa;padding:15px;border-radius:6px;border-left:4px solid #e74c3c">
+          <div class="form-row" style="align-items:flex-start">
+            <div class="form-group" style="flex:.8"><label>Tornata di Scelta</label><select id="absTornata"><option value="1">1ª Tornata (1° Giro)</option><option value="2">2ª Tornata (2° Giro)</option><option value="3">3ª Tornata (3° Giro)</option><option value="TUTTE">Tutte le Tornate</option></select></div>
+            <div class="form-group" style="flex:1.1"><label>Funzione/i (Multipla)</label><select id="absTargetGroup" class="listbox-multi-roles" multiple size="5"></select></div>
+            <div class="form-group" style="flex:1.2"><label>Unità (Facoltativo)</label><select id="absTargetUnita" class="listbox-multi-roles" multiple size="5"></select></div>
+            <div class="form-group" style="flex:1.2"><label>Gruppo (Facoltativo)</label><select id="absTargetGruppo" class="listbox-multi-roles" multiple size="5"></select></div>
+            <div class="form-group" style="flex:.95"><label>Max Assenze Contemp.</label><input type="number" id="absMaxConcurrent" value="" min="0" max="50" placeholder="Opzionale"></div>
+            <div class="form-group" style="flex:.95"><label>Max Sett. Consecutive</label><input type="number" id="absMaxConsecutive" value="" min="1" max="8" placeholder="Opzionale"></div>
+            <div class="form-group" style="flex:.95"><label style="color:#c0392b">Max Sett. Periodo</label><input type="number" id="absMaxTotalInPeriod" value="" min="1" max="8" placeholder="Opzionale" style="border:2px solid #c0392b;font-weight:700"></div>
+          </div>
+          <div class="form-row" style="margin-bottom:0;align-items:center">
+            <div class="form-group" style="flex:1.2;margin-bottom:0"><label>Genere di Assenza Consentito:</label><div style="display:flex;gap:15px;margin-top:6px"><label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="chkAllowV" checked style="width:auto"> <b>V</b></label><label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="chkAllowF" checked style="width:auto"> <b>F</b></label><label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="chkAllowP" checked style="width:auto"> <b>P</b></label></div></div>
+            <div class="form-group" style="flex:1.5;margin-bottom:0"><label>Descrizione / Nota Regola</label><input type="text" id="absRuleLabel" placeholder="Es. Max 1 assente M per ogni singolo Gruppo"></div>
+          </div>
+        </div>
+        <button type="button" class="btn-add" style="margin-top:12px" onclick="addUnifiedRule()">+ Aggiungi Regola al Calendario</button>
+        <ul class="list-data" id="adminUnifiedRulesList"></ul>
+      </div>
+
+      <div class="card full-width" style="border-top:4px solid #f39c12">
+        <h2>4. Ambito Funzioni (Trasversali vs Unità/Gruppo), Modalità Ranking & Punteggi Settimanali</h2>
+        <div class="form-row" style="align-items:flex-start">
+          <div style="flex:1.3;background:#fef9e7;padding:12px;border-radius:6px;border:1px solid #f39c12">
+            <label style="font-weight:700;font-size:.86rem;color:#d35400;display:block;margin-bottom:4px">🛡️ A) Blindatura Funzioni Trasversali (Ignora regole di Unità/Gruppo):</label>
+            <div id="functionOnlyRolesContainer" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+            <label style="font-weight:700;font-size:.86rem;color:#d35400;display:block;margin-bottom:4px;border-top:1px dashed #e67e22;padding-top:8px">🏆 B) Funzioni in "Modalità Ranking" (Graduatoria a turni):</label>
+            <div id="rankingRolesContainer" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
+            <div class="form-group" style="margin-bottom:8px">
+              <label style="font-size:.76rem">Metodo di Calcolo Punti per la Graduatoria:</label>
+              <select id="selRankingMetric" onchange="cambiaMetodoCalcoloRanking()" style="font-weight:700;border:1px solid #d35400">
+                <option value="TOTALE">Somma Totale Punti delle settimane scelte (es. 50, 65, 75 pt)</option>
+                <option value="MEDIA">Media Punti per giorno pianificato (Punti Totali / Giorni, es. 3.33, 4.33)</option>
+              </select>
+            </div>
+            <div style="border-top:1px dashed #e67e22;padding-top:8px;display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;gap:6px;align-items:center">
+                <label style="font-size:.76rem;font-weight:700;white-space:nowrap">Salva punteggi attuali come anno:</label>
+                <select id="selConsolidateTargetYear" style="font-weight:700"></select>
+              </div>
+              <button type="button" class="btn" id="btnAdminConsolidateYear" style="background:#27ae60;width:100%;padding:8px" onclick="consolidaPunteggiAnnoConcluso()">💾 Consolida e Salva Punteggi nel Foglio "Storico_Punteggi_Ranking"</button>
+              <button type="button" class="btn" style="background:#d35400;width:100%" onclick="apriModaleRanking()">📋 Apri Graduatoria Ufficiale, Turni & Archivio Storico</button>
+            </div>
+          </div>
+          <div style="flex:1.5">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <label style="font-weight:700;font-size:.85rem">🎯 C) Punteggi Settimanali (Foglio "Dati_di_Base"):</label>
+              <button type="button" class="btn" style="background:#7f8c8d;padding:4px 10px;font-size:.75rem" onclick="ripristinaPunteggiDefault()">Ripristina Punteggi Direttiva</button>
+            </div>
+            <div id="adminPointsGrid" class="pts-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbykI-RiCFC0m3xd-GE9p4P8xWmQw4fIBa6Cki8lqOVvVBlSovmThCEQ0Y584BW0VCeW/exec";
+const AUTH_COOKIE_NAME = "vacanze_dogana_auth";
+const DEFAULT_PUNTEGGI_DIRETTIVA = {1:15,2:5,3:5,4:5,5:5,6:25,7:5,8:10,9:10,10:10,11:10,12:15,13:25,14:15,15:15,16:15,17:20,18:25,19:20,20:20,21:20,22:20,23:20,24:25,25:30,26:30,27:35,28:35,29:35,30:35,31:30,32:25,33:25,34:25,35:25,36:25,37:20,38:20,39:15,40:15,41:10,42:10,43:10,44:15,45:5,46:5,47:5,48:5,49:5,50:10,51:25,52:30,53:15};
+const NOMI_MESI = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+const GIORNI_SETT = ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
+let pendingFirstLoginUser = null;
+
+function setAuthCookie(authObj, days = 7) {
+  const val = encodeURIComponent(JSON.stringify(authObj));
+  const d = new Date(); d.setTime(d.getTime() + (days * 86400000));
+  document.cookie = `${AUTH_COOKIE_NAME}=${val};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+  try { localStorage.setItem(AUTH_COOKIE_NAME, JSON.stringify(authObj)); } catch(e) {}
+}
+function getAuthCookie() {
+  const nameEQ = AUTH_COOKIE_NAME + "=";
+  for (let c of document.cookie.split(';')) {
+    c = c.trim();
+    if (c.indexOf(nameEQ) === 0) { try { return JSON.parse(decodeURIComponent(c.substring(nameEQ.length))); } catch(e) {} }
+  }
+  try { const fb = localStorage.getItem(AUTH_COOKIE_NAME); if (fb) return JSON.parse(fb); } catch(e) {}
+  return null;
+}
+function clearAuthCookie() {
+  document.cookie = `${AUTH_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+  try { localStorage.removeItem(AUTH_COOKIE_NAME); } catch(e) {}
+}
+
+function getDefaultUnifiedRules() {
+  return [
+    {id:101,kind:"format",periodType:"weeks",weeks:"1,6,13,24-34,44,51,52",start:"",end:"",color:"#ffccff",comment:"Vacanze scolastiche / Periodi di picco"},
+    {id:102,kind:"absence",tornata:"TUTTE",periodType:"weeks",weeks:"1-53",start:"",end:"",targetGroup:"TUTTI",targetUnita:"TUTTE",targetGruppo:"TUTTI",maxConcurrent:"",maxConsecutive:3,maxTotalInPeriod:"",allowedTypes:["V","F","P"],label:"Regola Generale Tutto l'Anno: Max 3 settimane consecutive"},
+    {id:103,kind:"absence",tornata:"1",periodType:"weeks",weeks:"24-34",start:"2027-06-14",end:"2027-08-29",targetGroup:"TUTTI",targetUnita:"TUTTE",targetGruppo:"TUTTI",maxConcurrent:"",maxConsecutive:2,maxTotalInPeriod:2,allowedTypes:["V","F"],label:"Regola 1° Giro Estivo (sett. 24-34): Max 2 settimane nel periodo e no PF"},
+    {id:104,kind:"absence",tornata:"1",periodType:"weeks",weeks:"6,13,44,51,52",start:"",end:"",targetGroup:"TUTTI",targetUnita:"TUTTE",targetGruppo:"TUTTI",maxConcurrent:"",maxConsecutive:"",maxTotalInPeriod:1,allowedTypes:["V","F"],label:"Regola 1° Giro Altre Vacanze Scolastiche: Max 1 settimana totale"},
+    {id:105,kind:"absence",tornata:"TUTTE",periodType:"weeks",weeks:"2-26,28-30,35-50",start:"",end:"",targetGroup:"Cgr",targetUnita:"TUTTE",targetGruppo:"TUTTI",maxConcurrent:2,maxConsecutive:"",maxTotalInPeriod:"",allowedTypes:["V","F","P"],label:"Limite Standard Cgr (Max 2 contemporanei)"},
+    {id:106,kind:"absence",tornata:"TUTTE",periodType:"weeks",weeks:"2-26,28-30,35-50",start:"",end:"",targetGroup:"Csq+SDSC",targetUnita:"TUTTE",targetGruppo:"TUTTI",maxConcurrent:3,maxConsecutive:"",maxTotalInPeriod:"",allowedTypes:["V","F","P"],label:"Limite Standard Csq/SDSC (Max 3 contemporanei)"},
+    {id:107,kind:"absence",tornata:"TUTTE",periodType:"weeks",weeks:"1,31-34,51,52",start:"",end:"",targetGroup:"Cgr",targetUnita:"TUTTE",targetGruppo:"TUTTI",maxConcurrent:3,maxConsecutive:"",maxTotalInPeriod:"",allowedTypes:["V","F","P"],label:"Alta Stagione Cgr (Max 3 contemporanei)"},
+    {id:108,kind:"absence",tornata:"TUTTE",periodType:"weeks",weeks:"1,31-34,51,52",start:"",end:"",targetGroup:"Csq+SDSC",targetUnita:"TUTTE",targetGruppo:"TUTTI",maxConcurrent:4,maxConsecutive:"",maxTotalInPeriod:"",allowedTypes:["V","F","P"],label:"Alta Stagione Csq/SDSC (Max 4 contemporanei)"},
+    {id:109,kind:"absence",tornata:"TUTTE",periodType:"weeks",weeks:"27",start:"",end:"",targetGroup:"Cgr+Csq+SDSC",targetUnita:"TUTTE",targetGruppo:"TUTTI",maxConcurrent:2,maxConsecutive:"",maxTotalInPeriod:"",allowedTypes:["V","F","P"],label:"Sett. 27 Formazione Arma da fuoco (Max 2 contemporanei)"},
+    {id:110,kind:"absence",tornata:"TUTTE",periodType:"weeks",weeks:"2-30,35-50",start:"",end:"",targetGroup:"REV",targetUnita:"TUTTE",targetGruppo:"TUTTI",maxConcurrent:3,maxConsecutive:"",maxTotalInPeriod:"",allowedTypes:["V","F","P"],label:"Limite Standard REV (Max 3 contemporanei)"},
+    {id:111,kind:"absence",tornata:"TUTTE",periodType:"weeks",weeks:"2-30,35-50",start:"",end:"",targetGroup:"AssD",targetUnita:"TUTTE",targetGruppo:"TUTTI",maxConcurrent:6,maxConsecutive:"",maxTotalInPeriod:"",allowedTypes:["V","F","P"],label:"Limite Standard AssD (Max 6 contemporanei)"}
+  ];
+}
+
+function getDefaultTornateList() {
+  return [
+    {id:1,nome:"1ª Tornata (1° Giro)",inizio:"2026-10-01T08:00",fine:"2026-10-18T23:59",colorV:"#ffff00",colorF:"#bfbfbf",colorP:"#ff99cc"},
+    {id:2,nome:"2ª Tornata (2° Giro)",inizio:"2026-10-19T08:00",fine:"2026-10-25T23:59",colorV:"#ffff00",colorF:"#bfbfbf",colorP:"#ff99cc"},
+    {id:3,nome:"3ª Tornata (3° Giro)",inizio:"2026-10-26T08:00",fine:"2026-10-30T23:59",colorV:"#ffff00",colorF:"#bfbfbf",colorP:"#ff99cc"}
+  ];
+}
+
+let appState = {
+  calendarMode:'year', utenteLoggato:null, isAdmin:false, hideExtraCols:false, fitYearScreen:false,
+  selectedFilterRoles:[], selectedFilterUnita:[], selectedFilterGruppi:[],
+  config:{
+    manualActiveTornata:"AUTO", tornate:getDefaultTornateList(),
+    rankingRoles:["REV","AssD"], functionOnlyRoles:["Cgr","Csq","SDSC","REV","AssD"],
+    rankingMetric:"TOTALE", rankingTurnIndex:{}, punteggiSettimane:Object.assign({}, DEFAULT_PUNTEGGI_DIRETTIVA),
+    anno:2027, maxWeeks:8, funzioni:["Cgr","Csq","SDSC","REV","AssD","M","P"],
+    gradi:["Sgtm","Aiut","Cpl","App","AssD","Spec"], unita:["Unità 1","Unità 2","Unità 3","Unità 4"],
+    gruppi:["Gruppo 1","Gruppo 2","Gruppo 3","Gruppo 4","Gruppo 5","Gruppo 6"], closures:[], unifiedRules:getDefaultUnifiedRules()
+  },
+  utenti:[], pianificazione:{}, divergenze:[], storicoRanking:[], problematicheAttive:[], cellWarningsMap:{}, weekConflictsSet:new Set(), allYearDays:[], weeksMap:[]
+};
+
+window.onload = function() {
+  abilitaMultiSelectSenzaCtrl();
+  popolaTutteDropdownFunzioni();
+  generaGiorniESettimaneAnno(appState.config.anno);
+  const savedSession = getAuthCookie();
+  if (savedSession && savedSession.utente) applicaSessioneUtente(savedSession.utente, savedSession.isAdmin === true);
+  else { document.getElementById("authModal").style.display = "flex"; renderCalendar(); }
+  caricaDatiServer();
+  window.addEventListener("resize", () => { if (appState.fitYearScreen) aggiornaLarghezzaFitYear(); });
+};
+
+function applicaSessioneUtente(utenteObj, isAdminFlag) {
+  appState.utenteLoggato = utenteObj;
+  appState.isAdmin = isAdminFlag === true;
+  document.getElementById("authModal").style.display = "none";
+  aggiornaBadgeUtente();
+  aggiornaBannerTornata();
+  if (appState.isAdmin) {
+    document.getElementById("btnSwitchView").style.display = "inline-block";
+    document.getElementById("btnReportProb").style.display = "inline-block";
+    document.getElementById("adminInsertBox").style.display = "block";
+    document.getElementById('viewCalendar').classList.remove('active');
+    document.getElementById('viewAdmin').classList.add('active');
+    document.getElementById('btnSwitchView').innerText = "📅 Torna al Calendario";
+    renderAdminData();
+  } else {
+    document.getElementById("btnSwitchView").style.display = "none";
+    document.getElementById("btnReportProb").style.display = "none";
+    document.getElementById("adminInsertBox").style.display = "none";
+    document.getElementById('viewAdmin').classList.remove('active');
+    document.getElementById('viewCalendar').classList.add('active');
+  }
+  renderCalendar();
+}
+
+function abilitaMultiSelectSenzaCtrl() {
+  [{id:"absTargetGroup", exclusives:["TUTTI"]},{id:"absTargetUnita", exclusives:["TUTTE","OGNI_UNITA"]},{id:"absTargetGruppo", exclusives:["TUTTI","OGNI_GRUPPO"]}].forEach(cfg => {
+    const sel = document.getElementById(cfg.id);
+    if (!sel) return;
+    sel.addEventListener("mousedown", function(e) {
+      if (e.target.tagName !== "OPTION") return;
+      e.preventDefault();
+      const opt = e.target;
+      if (cfg.exclusives.includes(opt.value)) Array.from(sel.options).forEach(o => o.selected = (o.value === opt.value));
+      else {
+        cfg.exclusives.forEach(exVal => { const exOpt = Array.from(sel.options).find(o => o.value === exVal); if (exOpt) exOpt.selected = false; });
+        opt.selected = !opt.selected;
+        if (!Array.from(sel.selectedOptions).length) { const defOpt = Array.from(sel.options).find(o => o.value === cfg.exclusives[0]); if (defOpt) defOpt.selected = true; }
+      }
+    });
+  });
+}
+
+async function chiamaServer(payload) {
+  const res = await fetch(GOOGLE_SCRIPT_URL, {method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),redirect:"follow"});
+  const testo = await res.text();
+  try { return JSON.parse(testo); } catch(err) { throw new Error("Risposta non valida da Google Apps Script."); }
+}
+
+async function sincronizzaOraManuale() {
+  const btn = document.getElementById("btnManualSync");
+  if (btn) { btn.disabled = true; btn.innerText = "⏳ Sincronizzazione..."; }
+  await caricaDatiServer();
+  if (btn) btn.disabled = false;
+  aggiornaTimestampSync();
+}
+
+function aggiornaTimestampSync() {
+  const now = new Date();
+  const btn = document.getElementById("btnManualSync");
+  if (btn) btn.innerHTML = `🔄 Sincronizza <small id="lastSyncTime" style="font-weight:400;font-size:.72rem;opacity:.9">(${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')})</small>`;
+}
+
+function aggiornaLarghezzaFitYear() {
+  const tbl = document.getElementById("vacationTable");
+  if (!tbl || !appState.fitYearScreen) { if (tbl) tbl.style.removeProperty("--week-fit-w"); return; }
+  const containerW = document.querySelector(".table-container").clientWidth || (window.innerWidth - 40);
+  const leftColsW = appState.hideExtraCols ? 205 : 505;
+  const numWeeks = appState.weeksMap.length || 53;
+  const wPx = Math.max(17, Math.floor((containerW - leftColsW - 6) / numWeeks));
+  tbl.style.setProperty("--week-fit-w", wPx + "px");
+}
+
+function toggleHideExtraColumns() {
+  appState.hideExtraCols = !appState.hideExtraCols;
+  const tbl = document.getElementById("vacationTable"), btn = document.getElementById("btnToggleCols");
+  tbl.classList.toggle("hide-extra-cols", appState.hideExtraCols);
+  if (btn) {
+    btn.innerText = appState.hideExtraCols ? "▶ Mostra Colonne (V, F, PF, %, Pt)" : "◀ Nascondi Colonne (V, F, PF, %, Pt)";
+    btn.style.background = appState.hideExtraCols ? "#e67e22" : "#34495e";
+  }
+  aggiornaLarghezzaFitYear(); renderCalendar();
+}
+
+function toggleFitYearScreen() {
+  appState.fitYearScreen = !appState.fitYearScreen;
+  const tbl = document.getElementById("vacationTable"), btn = document.getElementById("btnToggleFitYear");
+  tbl.classList.toggle("fit-year-screen", appState.fitYearScreen);
+  if (btn) {
+    btn.innerText = appState.fitYearScreen ? "🔍 Dimensione Standard (Con Scroll)" : "📐 Adatta Tutto l'Anno (Senza Scroll)";
+    btn.style.background = appState.fitYearScreen ? "#e67e22" : "#16a085";
+  }
+  aggiornaLarghezzaFitYear();
+}
+
+function assicuraRegolaAnnualeMax3Consecutive(rulesArray) {
+  if (!Array.isArray(rulesArray) || rulesArray.length === 0) return {rules:getDefaultUnifiedRules(), modified:true};
+  let modified = false;
+  if (!rulesArray.some(r => r.kind === 'absence' && String(r.weeks).trim() === "1-53" && Number(r.maxConsecutive) === 3)) {
+    rulesArray.splice(1, 0, {id:102,kind:"absence",tornata:"TUTTE",periodType:"weeks",weeks:"1-53",start:"",end:"",targetGroup:"TUTTI",targetUnita:"TUTTE",targetGruppo:"TUTTI",maxConcurrent:"",maxConsecutive:3,maxTotalInPeriod:"",allowedTypes:["V","F","P"],label:"Regola Generale Tutto l'Anno: Max 3 settimane consecutive"});
+    modified = true;
+  }
+  return {rules:rulesArray, modified};
+}
+
+function sincronizzaPuntiAnnoPrecedenteDaStorico() {
+  const annoPrec = (Number(appState.config.anno) || 2027) - 1;
+  const usaMedia = appState.config.rankingMetric === "MEDIA";
+  appState.utenti.forEach(u => {
+    const rec = appState.storicoRanking.find(r => Number(r.anno) === annoPrec && String(r.nrPersonale) === String(u.nrPersonale));
+    u.puntiAnnoPrec = rec ? (usaMedia ? (Number(rec.mediaPunti) || 0) : (Number(rec.puntiTotali) || 0)) : 0;
+    u.posAnnoPrec = rec ? (Number(rec.posizione) || 999) : 999;
+  });
+}
+
+async function caricaDatiServer(silentBackground = false) {
+  try {
+    const ris = await chiamaServer({azione:"init"});
+    if (ris && ris.successo) {
+      if (ris.config) {
+        appState.config.anno = Number(ris.config.anno) || 2027;
+        appState.config.maxWeeks = Number(ris.config.maxWeeks) || 8;
+        const td = ris.config.tornateData || ris.config.tornate;
+        if (Array.isArray(td) && td.length === 3) appState.config.tornate = td.map(t => Object.assign({colorV:"#ffff00",colorF:"#bfbfbf",colorP:"#ff99cc"}, t));
+        else if (td && typeof td === "object") {
+          appState.config.manualActiveTornata = td.manualActive || "AUTO";
+          if (Array.isArray(td.list)) appState.config.tornate = td.list.map(t => Object.assign({colorV:"#ffff00",colorF:"#bfbfbf",colorP:"#ff99cc"}, t));
+          if (Array.isArray(td.rankingRoles)) appState.config.rankingRoles = td.rankingRoles;
+          if (Array.isArray(td.functionOnlyRoles)) appState.config.functionOnlyRoles = td.functionOnlyRoles;
+          if (td.rankingMetric) appState.config.rankingMetric = td.rankingMetric;
+          if (td.rankingTurnIndex && typeof td.rankingTurnIndex === "object") appState.config.rankingTurnIndex = td.rankingTurnIndex;
         }
+        if (Array.isArray(ris.config.funzioni) && ris.config.funzioni.length > 0) appState.config.funzioni = ris.config.funzioni;
+        if (Array.isArray(ris.config.gradi) && ris.config.gradi.length > 0) appState.config.gradi = ris.config.gradi;
+        if (Array.isArray(ris.config.unita) && ris.config.unita.length > 0) appState.config.unita = ris.config.unita;
+        if (Array.isArray(ris.config.gruppi) && ris.config.gruppi.length > 0) appState.config.gruppi = ris.config.gruppi;
+        if (ris.config.punteggiSettimane && Object.keys(ris.config.punteggiSettimane).length > 0) appState.config.punteggiSettimane = ris.config.punteggiSettimane;
+        if (Array.isArray(ris.config.closures)) appState.config.closures = ris.config.closures;
+        appState.config.unifiedRules = assicuraRegolaAnnualeMax3Consecutive(ris.config.unifiedRules).rules;
+      }
+      appState.utenti = Array.isArray(ris.utenti) ? ris.utenti : [];
+      appState.pianificazione = ris.pianificazione || {};
+      appState.divergenze = Array.isArray(ris.divergenze) ? ris.divergenze : [];
+      appState.storicoRanking = Array.isArray(ris.storicoRanking) ? ris.storicoRanking : [];
+      sincronizzaPuntiAnnoPrecedenteDaStorico();
+      if (appState.utenteLoggato) {
+        const uUpd = appState.utenti.find(u => String(u.nrPersonale) === String(appState.utenteLoggato.nrPersonale));
+        if (uUpd) { appState.utenteLoggato = uUpd; aggiornaBadgeUtente(); }
+      }
+      aggiornaTimestampSync();
+    }
+  } catch(e) { console.warn(e.message); }
+  popolaTutteDropdownFunzioni(); aggiornaBannerTornata(); generaGiorniESettimaneAnno(appState.config.anno); renderCalendar();
+  if (!silentBackground && document.getElementById('viewAdmin').classList.contains('active')) renderAdminData();
+}
 
-        let activeProfileKey = 'caso0';
-        let projectionChartInstance = null;
+function cambiaMetodoCalcoloRanking() {
+  appState.config.rankingMetric = document.getElementById("selRankingMetric").value;
+  sincronizzaPuntiAnnoPrecedenteDaStorico(); renderAdminData(); renderCalendar();
+}
 
-        // Inizializzazione quando la pagina viene caricata
-        document.addEventListener('DOMContentLoaded', () => {
-            populateClassSelect();
-            generateComparativeCards();
-            loadProfile('caso0');
+async function consolidaPunteggiAnnoConcluso() {
+  const selYear = document.getElementById("selConsolidateTargetYear");
+  const annoTarget = selYear ? Number(selYear.value) : (Number(appState.config.anno) || 2027);
+  const usaMedia = appState.config.rankingMetric === "MEDIA";
+  if (!confirm(`Vuoi salvare i punteggi attualmente visibili sul calendario nel foglio Google "Storico_Punteggi_Ranking" sotto l'anno ${annoTarget}?`)) return;
+  let recordsDaSalvare = [];
+  appState.config.funzioni.forEach(funcName => {
+    const fUp = String(funcName).trim().toUpperCase();
+    const utentiRuolo = appState.utenti.filter(u => String(u.funzione || "").trim().toUpperCase() === fUp);
+    let calcolati = utentiRuolo.map(u => {
+      const tot = calcolaTotaliUtente(u.nrPersonale);
+      return {nrPersonale:u.nrPersonale,cognomeNome:`${u.cognome} ${u.nome}`,funzione:u.funzione,settimane:tot.totalAllWeeks,giorni:tot.totalAllWeeks*5,puntiTotali:tot.sommaPuntiAnno,mediaPunti:Number(tot.mediaPuntiAnno)||0,oldPos:Number(u.posAnnoPrec)||999};
+    });
+    calcolati.sort((a, b) => {
+      const valA = usaMedia ? a.mediaPunti : a.puntiTotali, valB = usaMedia ? b.mediaPunti : b.puntiTotali;
+      if (valA !== valB) return valA - valB;
+      return b.oldPos - a.oldPos;
+    });
+    calcolati.forEach((item, idx) => { item.posizione = idx + 1; recordsDaSalvare.push(item); });
+  });
+  const btnAdm = document.getElementById("btnAdminConsolidateYear");
+  if (btnAdm) { btnAdm.disabled = true; btnAdm.innerText = "⏳ Salvataggio..."; }
+  try {
+    const ris = await chiamaServer({azione:"consolidaPunteggiAnno",anno:annoTarget,records:recordsDaSalvare});
+    if (ris && ris.successo) { alert("✅ " + ris.messaggio); await caricaDatiServer(); }
+    else alert("Errore: " + (ris ? ris.messaggio : "Impossibile consolidare"));
+  } catch(e) { alert("Errore: " + e.message); }
+  if (btnAdm) { btnAdm.disabled = false; btnAdm.innerText = `💾 Consolida e Salva Punteggi nel Foglio "Storico_Punteggi_Ranking"`; }
+}
+
+function isRoleInRankingMode(roleName) {
+  if (!roleName || !Array.isArray(appState.config.rankingRoles)) return false;
+  const rUp = String(roleName).trim().toUpperCase();
+  return appState.config.rankingRoles.some(x => String(x).trim().toUpperCase() === rUp);
+}
+function isRoleFunctionOnly(roleName) {
+  if (!roleName || !Array.isArray(appState.config.functionOnlyRoles)) return false;
+  const rUp = String(roleName).trim().toUpperCase();
+  return appState.config.functionOnlyRoles.some(x => String(x).trim().toUpperCase() === rUp);
+}
+function toggleRoleFunctionOnlyMode(roleName) {
+  if (!Array.isArray(appState.config.functionOnlyRoles)) appState.config.functionOnlyRoles = [];
+  const idx = appState.config.functionOnlyRoles.indexOf(roleName);
+  if (idx >= 0) appState.config.functionOnlyRoles.splice(idx, 1); else appState.config.functionOnlyRoles.push(roleName);
+  renderAdminData(); renderCalendar();
+}
+
+function getGraduatoriaPerFunzione(roleName) {
+  const rUp = String(roleName).trim().toUpperCase();
+  return appState.utenti.filter(u => String(u.funzione || "").trim().toUpperCase() === rUp).slice().sort((a, b) => {
+    const ptA = Number(a.puntiAnnoPrec) || 0, ptB = Number(b.puntiAnnoPrec) || 0;
+    if (ptA !== ptB) return ptA - ptB;
+    const posA = Number(a.posAnnoPrec) || 0, posB = Number(b.posAnnoPrec) || 0;
+    if (posA !== posB) return posB - posA;
+    return String(a.cognome).localeCompare(String(b.cognome));
+  });
+}
+
+function getUtenteDiTurnoRanking(roleName) {
+  if (!isRoleInRankingMode(roleName)) return null;
+  const grad = getGraduatoriaPerFunzione(roleName);
+  const idx = Number(appState.config.rankingTurnIndex[roleName]) || 0;
+  return (grad.length === 0 || idx >= grad.length) ? null : grad[idx];
+}
+
+function aggiornaBarraTurnoRankingUtente() {
+  const bar = document.getElementById("rankingTurnBar"), txt = document.getElementById("rankingTurnText"), btnPass = document.getElementById("btnPassMyTurn");
+  if (!bar) return;
+  if (!appState.utenteLoggato || appState.isAdmin || !isRoleInRankingMode(appState.utenteLoggato.funzione)) { bar.style.display = "none"; return; }
+  bar.style.display = "flex";
+  const myRole = appState.utenteLoggato.funzione, grad = getGraduatoriaPerFunzione(myRole);
+  const myPos = grad.findIndex(u => String(u.nrPersonale) === String(appState.utenteLoggato.nrPersonale)) + 1;
+  const activeUser = getUtenteDiTurnoRanking(myRole);
+  if (!activeUser) {
+    bar.style.background = "#fdedec"; bar.style.color = "#c0392b";
+    txt.innerText = `🏆 Modalità Ranking [${myRole}] (Tua pos: ${myPos}° su ${grad.length}): Tutti i turni completati.`;
+    btnPass.style.display = "none";
+  } else if (String(activeUser.nrPersonale) === String(appState.utenteLoggato.nrPersonale)) {
+    bar.style.background = "#d4efdf"; bar.style.color = "#1e8449";
+    txt.innerText = `🟢 È IL TUO TURNO DI SCELTA! (${myPos}° in Graduatoria ${myRole}) — Inserisci le settimane e poi clicca qui a destra:`;
+    btnPass.style.display = "inline-block";
+  } else {
+    const activePos = grad.findIndex(u => String(u.nrPersonale) === String(activeUser.nrPersonale)) + 1;
+    bar.style.background = "#fff3cd"; bar.style.color = "#856404";
+    txt.innerText = `⏳ Modalità Ranking [${myRole}] (Tua pos: ${myPos}° su ${grad.length}) — In attesa del ${activePos}° classificato (${activeUser.cognome} ${activeUser.nome}).`;
+    btnPass.style.display = "none";
+  }
+}
+
+async function concludiMioTurnoRanking() {
+  if (!appState.utenteLoggato) return;
+  const myRole = appState.utenteLoggato.funzione, activeUser = getUtenteDiTurnoRanking(myRole);
+  if (!activeUser || String(activeUser.nrPersonale) !== String(appState.utenteLoggato.nrPersonale)) return;
+  if (!confirm("Confermi di aver terminato l'inserimento delle tue vacanze e di voler passare il turno al collega successivo?")) return;
+  const nextIdx = (Number(appState.config.rankingTurnIndex[myRole]) || 0) + 1;
+  appState.config.rankingTurnIndex[myRole] = nextIdx;
+  aggiornaBarraTurnoRankingUtente(); renderCalendar();
+  try { await chiamaServer({azione:"passaTurnoRanking",funzione:myRole,nuovoIndice:nextIdx}); } catch(e) {}
+}
+
+async function impostaTurnoRankingDaAdmin(roleName, newIndex) {
+  appState.config.rankingTurnIndex[roleName] = Number(newIndex) || 0;
+  renderModaleGraduatoriaContent(); aggiornaBarraTurnoRankingUtente(); renderCalendar();
+  try { await chiamaServer({azione:"passaTurnoRanking",funzione:roleName,nuovoIndice:Number(newIndex)||0}); } catch(e) {}
+}
+
+function apriModaleRanking() { renderModaleGraduatoriaContent(); document.getElementById("rankingModal").style.display = "flex"; }
+function chiudiModaleRanking() { document.getElementById("rankingModal").style.display = "none"; }
+
+function renderModaleGraduatoriaContent() {
+  const annoCurr = Number(appState.config.anno) || 2027, annoPrec = annoCurr - 1, usaMedia = appState.config.rankingMetric === "MEDIA";
+  document.getElementById("lblRankCurrYear").innerText = annoCurr; document.getElementById("lblRankPrevYear").innerText = annoPrec;
+  const container = document.getElementById("rankingTablesContainer"), rRoles = appState.config.rankingRoles || [];
+  if (rRoles.length === 0) container.innerHTML = `<div style="padding:12px;background:#f8f9fa;border-radius:6px">Nessuna funzione in Modalità Ranking.</div>`;
+  else {
+    let html = "";
+    rRoles.forEach(role => {
+      const grad = getGraduatoriaPerFunzione(role), activeIdx = Number(appState.config.rankingTurnIndex[role]) || 0;
+      html += `<div style="margin-bottom:18px;border:1px solid #ccc;border-radius:6px;padding:12px;background:#fafafa">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+          <h3 style="margin:0;color:#2c3e50">📌 Graduatoria ${annoCurr} — Funzione: <span style="color:#d35400">${role}</span></h3>
+          ${appState.isAdmin ? `<div style="display:flex;gap:6px"><button type="button" class="btn" style="background:#27ae60;padding:4px 10px;font-size:.76rem" onclick="impostaTurnoRankingDaAdmin('${role}',0)">🔄 Riavvia dal 1°</button><button type="button" class="btn" style="background:#2980b9;padding:4px 10px;font-size:.76rem" onclick="impostaTurnoRankingDaAdmin('${role}',${activeIdx+1})">⏭️ Passa al Successivo</button></div>` : ''}
+        </div>`;
+      if (grad.length === 0) html += `<p style="font-size:.82rem;color:#777">Nessun collaboratore per ${role}.</p></div>`;
+      else {
+        html += `<table class="report-table"><thead><tr><th>Pos.</th><th>Collaboratore</th><th>Grado / Unità / Gruppo</th><th>Punti ${annoPrec}</th><th>Punti Scelti ${annoCurr}</th><th>Stato Turno</th>${appState.isAdmin?'<th>Admin</th>':''}</tr></thead><tbody>`;
+        grad.forEach((u, idx) => {
+          const tot = calcolaTotaliUtente(u.nrPersonale), isCurrent = (idx === activeIdx), isDone = (idx < activeIdx);
+          let statusBadge = isCurrent ? `<span class="badge" style="background:#27ae60;color:#fff">🟢 DI TURNO ORA</span>` : (isDone ? `<span class="badge" style="background:#3498db;color:#fff">✅ Completato</span>` : `<span class="badge" style="background:#bdc3c7;color:#333">⏳ In attesa</span>`);
+          html += `<tr style="${isCurrent?'background:#eafaf1;font-weight:700':''}"><td><b>${idx+1}°</b></td><td>${u.cognome} ${u.nome} <small>(N° ${u.nrPersonale})</small></td><td><small>${[u.grado,u.unita,u.gruppo].filter(Boolean).join(" | ")||"-"}</small></td><td style="color:#d35400;font-weight:700">${usaMedia?Number(u.puntiAnnoPrec||0).toFixed(2)+' pt/gg':Number(u.puntiAnnoPrec||0)+' pt'}</td><td><b>${tot.sommaPuntiAnno} pt (${tot.totalAllWeeks} sett.)</b></td><td>${statusBadge}</td>${appState.isAdmin?`<td><button type="button" class="btn" style="padding:3px 8px;font-size:.74rem;background:#8e44ad" onclick="impostaTurnoRankingDaAdmin('${role}',${idx})">Imposta Qui</button></td>`:''}</tr>`;
         });
+        html += `</tbody></table></div>`;
+      }
+    });
+    container.innerHTML = html;
+  }
+  const archBox = document.getElementById("storicoRankingArchiveContainer");
+  if (!appState.storicoRanking || appState.storicoRanking.length === 0) archBox.innerHTML = `<div style="color:#777;padding:8px">Nessun anno consolidato.</div>`;
+  else {
+    let hA = `<table class="report-table"><thead><tr><th>Anno</th><th>Pos.</th><th>Funzione</th><th>Collaboratore</th><th>Settimane</th><th>Somma Punti</th><th>Media</th><th>Data</th></tr></thead><tbody>`;
+    appState.storicoRanking.slice().sort((a,b) => b.anno - a.anno || a.funzione.localeCompare(b.funzione) || a.posizione - b.posizione).forEach(r => {
+      hA += `<tr><td><b>${r.anno}</b></td><td><b>${r.posizione}°</b></td><td><span class="badge" style="background:#2c3e50;color:#fff">${r.funzione}</span></td><td><b>${r.cognomeNome}</b></td><td>${r.settimane} sett.</td><td style="color:#d35400;font-weight:700">${r.puntiTotali} pt</td><td>${Number(r.mediaPunti).toFixed(2)}</td><td><small>${r.dataCons}</small></td></tr>`;
+    });
+    archBox.innerHTML = hA + `</tbody></table>`;
+  }
+}
 
-        // Formule matematiche per calcolare i moltiplicatori in base all'esperienza
-        function getPavimentoMult(exp) { let p=1.0; p+=Math.min(Math.max(0,exp),5)*0.0295; if(exp>5) p+=Math.min(exp-5,5)*0.0245; if(exp>10) p+=Math.min(exp-10,5)*0.0195; if(exp>15) p+=Math.min(exp-15,5)*0.0145; return p; }
-        function getTargetMult(exp) { let p=1.10; p+=Math.min(Math.max(0,exp),5)*0.0275; if(exp>5) p+=Math.min(exp-5,5)*0.0225; if(exp>10) p+=Math.min(exp-10,5)*0.0175; if(exp>15) p+=Math.min(exp-15,5)*0.0125; return p; }
-        function getTheoRate(exp) { if(exp<=5) return 0.0475; if(exp<=10) return 0.0415; if(exp<=15) return 0.0335; if(exp<=20) return 0.0235; return 0.0; }
-        function formatCHF(val) { return (val || 0).toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function renderMultiRoleFilterBar() {
+  const cRole = document.getElementById("multiRoleFilterContainer"), cUnita = document.getElementById("multiUnitaFilterContainer"), cGruppo = document.getElementById("multiGruppoFilterContainer"), summary = document.getElementById("activeFilterSummary");
+  if (!cRole) return;
+  const fList = appState.config.funzioni || ["Cgr","Csq","SDSC","REV","AssD","M","P"];
+  const uList = appState.config.unita || ["Unità 1","Unità 2","Unità 3","Unità 4"];
+  const gList = appState.config.gruppi || ["Gruppo 1","Gruppo 2","Gruppo 3","Gruppo 4","Gruppo 5","Gruppo 6"];
 
-        // Popola il menu a tendina delle classi (da 1 a 38)
-        function populateClassSelect() {
-            const select = document.getElementById('input-class');
-            for (let c = 1; c <= 38; c++) select.add(new Option(`Classe ${c}`, c));
+  let htmlR = `<span class="role-chip ${appState.selectedFilterRoles.length===0?'active':''}" onclick="resetMultiRoleFilter()">Tutte</span>`;
+  fList.forEach(f => {
+    const icon = isRoleInRankingMode(f) ? "🏆" : (isRoleFunctionOnly(f) ? "🛡️" : "");
+    htmlR += `<span class="role-chip ${appState.selectedFilterRoles.includes(f)?'active':''}" onclick="toggleRoleInFilter('${f}')">${icon}${f}</span>`;
+  });
+  htmlR += `<span class="role-chip preset-chip" onclick="setPresetRoleFilter(['Cgr','Csq','SDSC'])">⚡ Quadri</span>`;
+  cRole.innerHTML = htmlR;
+
+  if (cUnita) {
+    let htmlU = `<span class="role-chip ${appState.selectedFilterUnita.length===0?'active-unita':''}" onclick="resetMultiUnitaFilter()">Tutte</span>`;
+    uList.forEach(u => { htmlU += `<span class="role-chip ${appState.selectedFilterUnita.includes(u)?'active-unita':''}" onclick="toggleUnitaInFilter('${u}')">${u}</span>`; });
+    cUnita.innerHTML = htmlU;
+  }
+  if (cGruppo) {
+    let htmlG = `<span class="role-chip ${appState.selectedFilterGruppi.length===0?'active-gruppo':''}" onclick="resetMultiGruppoFilter()">Tutti</span>`;
+    gList.forEach(g => { htmlG += `<span class="role-chip ${appState.selectedFilterGruppi.includes(g)?'active-gruppo':''}" onclick="toggleGruppoInFilter('${g}')">${g}</span>`; });
+    cGruppo.innerHTML = htmlG;
+  }
+  let act = [];
+  if (appState.selectedFilterRoles.length) act.push(`Funz: ${appState.selectedFilterRoles.join("+")}`);
+  if (appState.selectedFilterUnita.length) act.push(`Unità: ${appState.selectedFilterUnita.join("+")}`);
+  if (appState.selectedFilterGruppi.length) act.push(`Gruppo: ${appState.selectedFilterGruppi.join("+")}`);
+  summary.innerText = act.length ? `Filtro: [${act.join(" | ")}]` : "";
+}
+
+function toggleRoleInFilter(r) { const i = appState.selectedFilterRoles.indexOf(r); if (i>=0) appState.selectedFilterRoles.splice(i,1); else appState.selectedFilterRoles.push(r); renderMultiRoleFilterBar(); renderCalendar(); }
+function resetMultiRoleFilter() { appState.selectedFilterRoles = []; renderMultiRoleFilterBar(); renderCalendar(); }
+function toggleUnitaInFilter(u) { const i = appState.selectedFilterUnita.indexOf(u); if (i>=0) appState.selectedFilterUnita.splice(i,1); else appState.selectedFilterUnita.push(u); renderMultiRoleFilterBar(); renderCalendar(); }
+function resetMultiUnitaFilter() { appState.selectedFilterUnita = []; renderMultiRoleFilterBar(); renderCalendar(); }
+function toggleGruppoInFilter(g) { const i = appState.selectedFilterGruppi.indexOf(g); if (i>=0) appState.selectedFilterGruppi.splice(i,1); else appState.selectedFilterGruppi.push(g); renderMultiRoleFilterBar(); renderCalendar(); }
+function resetMultiGruppoFilter() { appState.selectedFilterGruppi = []; renderMultiRoleFilterBar(); renderCalendar(); }
+function setPresetRoleFilter(arr) { appState.selectedFilterRoles = appState.config.funzioni.filter(f => arr.some(r => f.toUpperCase().includes(r.toUpperCase()))); renderMultiRoleFilterBar(); renderCalendar(); }
+
+function utentePassaFiltroMultiFunzione(user) {
+  if (appState.selectedFilterUnita.length > 0 && !appState.selectedFilterUnita.some(s => String(s).trim().toUpperCase() === String(user.unita||"").trim().toUpperCase())) return false;
+  if (appState.selectedFilterGruppi.length > 0 && !appState.selectedFilterGruppi.some(s => String(s).trim().toUpperCase() === String(user.gruppo||"").trim().toUpperCase())) return false;
+  if (appState.selectedFilterRoles.length > 0) {
+    const uF = String(user.funzione || "").toUpperCase();
+    if (!appState.selectedFilterRoles.some(s => uF === s.toUpperCase() || uF.includes(s.toUpperCase()))) return false;
+  }
+  return true;
+}
+
+function getFunzioniPerCalcoliTotali() { return appState.selectedFilterRoles.length > 0 ? appState.selectedFilterRoles : (appState.config.funzioni || ["Cgr","Csq","SDSC","REV","AssD","M","P"]); }
+async function ripristinaRegoleDefaultDirettiva() { appState.config.unifiedRules = getDefaultUnifiedRules(); renderAdminData(); renderCalendar(); await salvaTuttoSuGoogle(); }
+function ripristinaPunteggiDefault() { appState.config.punteggiSettimane = Object.assign({}, DEFAULT_PUNTEGGI_DIRETTIVA); generaGiorniESettimaneAnno(appState.config.anno); renderAdminData(); renderCalendar(); }
+
+function getTornataAttiva() {
+  const mode = String(appState.config.manualActiveTornata || "AUTO");
+  if (mode === "CLOSED") return null;
+  if (mode === "1" || mode === "2" || mode === "3") return appState.config.tornate.find(t => String(t.id) === mode) || appState.config.tornate[0];
+  const ora = new Date();
+  for (let t of appState.config.tornate) if (t.inizio && t.fine && ora >= new Date(t.inizio) && ora <= new Date(t.fine)) return t;
+  return null;
+}
+
+function validaDateTornate() {
+  const errBox = document.getElementById("tornateOverlapError");
+  [1, 2, 3].forEach(n => { const b = document.getElementById(`boxTornata${n}`); if (b) b.classList.remove("overlap-error-box"); });
+  const periodi = []; let errori = [];
+  for (let n = 1; n <= 3; n++) {
+    const sVal = document.getElementById(`t${n}_start`).value, eVal = document.getElementById(`t${n}_end`).value;
+    if (sVal && eVal) {
+      const dS = new Date(sVal), dE = new Date(eVal);
+      if (dE <= dS) { errori.push(`Nella ${n}ª Tornata la Chiusura deve essere successiva all'Apertura!`); document.getElementById(`boxTornata${n}`).classList.add("overlap-error-box"); }
+      periodi.push({id:n, start:dS, end:dE, sStr:sVal.replace("T"," "), eStr:eVal.replace("T"," ")});
+    }
+  }
+  for (let i = 0; i < periodi.length; i++) {
+    for (let j = i + 1; j < periodi.length; j++) {
+      const A = periodi[i], B = periodi[j];
+      if (A.start <= B.end && B.start <= A.end) {
+        errori.push(`Sovrapposizione tra ${A.id}ª Tornata e ${B.id}ª Tornata!`);
+        document.getElementById(`boxTornata${A.id}`).classList.add("overlap-error-box"); document.getElementById(`boxTornata${B.id}`).classList.add("overlap-error-box");
+      }
+    }
+  }
+  if (errori.length > 0) { errBox.style.display = "block"; errBox.innerHTML = "🛑 " + errori.join("<br>• "); return errori.join("\n"); }
+  errBox.style.display = "none"; return null;
+}
+
+function getAbsenceCellColor(tipo, tornataNum) {
+  if (tipo === 'K' || tipo === 'CORSO' || tipo === 'MIL') return {bg:"#8e44ad", fg:"#ffffff"};
+  const tObj = appState.config.tornate[(Number(tornataNum)||1)-1] || appState.config.tornate[0] || {colorV:"#ffff00",colorF:"#bfbfbf",colorP:"#ff99cc"};
+  if (tipo === 'V') return {bg:tObj.colorV||"#ffff00", fg:"#000000"};
+  if (tipo === 'F' || tipo === 'FLAZ') return {bg:tObj.colorF||"#bfbfbf", fg:"#000000"};
+  if (tipo === 'P' || tipo === 'PF') return {bg:tObj.colorP||"#ff99cc", fg:"#000000"};
+  return {bg:"#ffff00", fg:"#000000"};
+}
+
+function parseWeeksString(str) {
+  let set = new Set(); if (!str) return set;
+  String(str).split(',').forEach(p => {
+    p = p.trim();
+    if (p.includes('-')) { let [a,b] = p.split('-').map(x => parseInt(x.trim(),10)); if (!isNaN(a) && !isNaN(b)) for (let i=Math.min(a,b); i<=Math.max(a,b); i++) set.add(i); }
+    else { let n = parseInt(p,10); if (!isNaN(n)) set.add(n); }
+  });
+  return set;
+}
+
+function weekMatchesRule(w, r) {
+  if (r.periodType === 'weeks') {
+    const rawW = String(r.weeks || "").trim();
+    if (rawW === "1-52" || rawW === "1-53") return true;
+    if (Number(w.isoYear) !== Number(appState.config.anno)) return false;
+    return parseWeeksString(rawW).has(Number(w.weekNum));
+  }
+  if (r.periodType === 'dates' && r.start && r.end) return w.startStr <= r.end && w.endStr >= r.start;
+  return false;
+}
+
+function userMatchesRuleTarget(userObj, ruleObj, referenceUser = null) {
+  const rawU = String(ruleObj.targetUnita || "TUTTE").trim().toUpperCase();
+  const rawG = String(ruleObj.targetGruppo || "TUTTI").trim().toUpperCase();
+  const hasU = (rawU !== "" && rawU !== "TUTTE" && rawU !== "TUTTI");
+  const hasG = (rawG !== "" && rawG !== "TUTTI" && rawG !== "TUTTE");
+  if ((hasU || hasG) && isRoleFunctionOnly(userObj.funzione)) return false;
+
+  const tFunc = String(ruleObj.targetGroup || "TUTTI").toUpperCase().split('+').map(s => s.trim()).filter(Boolean);
+  if (!tFunc.includes("TUTTI")) {
+    const uF = String(userObj.funzione || "").trim().toUpperCase();
+    if (!tFunc.some(t => uF === t || uF.includes(t))) return false;
+  }
+  if (hasU) {
+    const uU = String(userObj.unita || "").trim().toUpperCase(); if (!uU) return false;
+    if (rawU === "OGNI_UNITA") { if (referenceUser && uU !== String(referenceUser.unita||"").trim().toUpperCase()) return false; }
+    else if (!rawU.split('+').map(s=>s.trim()).some(t => uU === t)) return false;
+  }
+  if (hasG) {
+    const uG = String(userObj.gruppo || "").trim().toUpperCase(); if (!uG) return false;
+    if (rawG === "OGNI_GRUPPO") { if (referenceUser && uG !== String(referenceUser.gruppo||"").trim().toUpperCase()) return false; }
+    else if (!rawG.split('+').map(s=>s.trim()).some(t => uG === t)) return false;
+  }
+  return true;
+}
+
+function formatRuleTargetBadge(ruleObj, sampleUser = null) {
+  let parts = [ruleObj.targetGroup || "TUTTI"];
+  const rawU = String(ruleObj.targetUnita || "TUTTE").trim(), rawG = String(ruleObj.targetGruppo || "TUTTI").trim();
+  if (rawU && rawU !== "TUTTE") parts.push(rawU === "OGNI_UNITA" ? (sampleUser && sampleUser.unita ? sampleUser.unita : "🔄 Ogni Singola Unità") : rawU);
+  if (rawG && rawG !== "TUTTI") parts.push(rawG === "OGNI_GRUPPO" ? (sampleUser && sampleUser.gruppo ? sampleUser.gruppo : "🔄 Ogni Singolo Gruppo") : rawG);
+  return parts.join(" • ");
+}
+
+function getWeekFormatInfo(w) {
+  let color = null, comments = [];
+  appState.config.unifiedRules.forEach(r => { if (r.kind === 'format' && weekMatchesRule(w, r)) { if (r.color) color = r.color; if (r.comment) comments.push(r.comment); } });
+  return {color, comment:comments.join(" | ")};
+}
+
+function getISOWeekInfo(dateObj) {
+  const d = new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return {week:Math.ceil((((d - yearStart) / 86400000) + 1) / 7), isoYear:d.getUTCFullYear()};
+}
+function formatDateYMD(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function formatShortDM(d) { return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}`; }
+function getPuntiSettimana(weekNum) { const map = appState.config.punteggiSettimane || DEFAULT_PUNTEGGI_DIRETTIVA; return map[weekNum] !== undefined ? Number(map[weekNum]) : (DEFAULT_PUNTEGGI_DIRETTIVA[weekNum] || 15); }
+
+function generaGiorniESettimaneAnno(year) {
+  const jan1 = new Date(year,0,1), startDate = new Date(year,0,1 - ((jan1.getDay()+6)%7));
+  const dec31 = new Date(year,11,31), endDate = new Date(year,11,31 + (6 - ((dec31.getDay()+6)%7)));
+  let days = [], weeks = {}, curr = new Date(startDate);
+  while (curr <= endDate) {
+    const ymd = formatDateYMD(curr), dow = curr.getDay(), iso = getISOWeekInfo(curr), weekKey = `${iso.isoYear}-W${String(iso.week).padStart(2,'0')}`;
+    if (!weeks[weekKey]) {
+      let mIdx = curr.getMonth(); if (curr.getFullYear() < year) mIdx = 0; if (curr.getFullYear() > year) mIdx = 11;
+      weeks[weekKey] = {key:weekKey,weekNum:Number(iso.week),isoYear:Number(iso.isoYear),headerMonth:NOMI_MESI[mIdx],punti:getPuntiSettimana(iso.week),days:[]};
+    }
+    const dayObj = {dateStr:ymd,dateObj:new Date(curr),day:curr.getDate(),month:curr.getMonth(),year:curr.getFullYear(),dow:dow,weekKey:weekKey,weekNum:Number(iso.week)};
+    days.push(dayObj); weeks[weekKey].days.push(dayObj); curr.setDate(curr.getDate()+1);
+  }
+  Object.values(weeks).forEach((w, idx) => {
+    w.index = idx; w.punti = getPuntiSettimana(w.weekNum);
+    w.rangeLabel = `${formatShortDM(w.days[0].dateObj)} / ${formatShortDM(w.days[w.days.length-1].dateObj)}`;
+    w.startStr = w.days[0].dateStr; w.endStr = w.days[w.days.length-1].dateStr;
+  });
+  appState.allYearDays = days; appState.weeksMap = Object.values(weeks);
+  const selW = document.getElementById("weekSelector");
+  if (selW) selW.innerHTML = appState.weeksMap.map((w, idx) => `<option value="${idx}">Sett. ${w.weekNum} (${w.rangeLabel}) [${w.punti} pt]</option>`).join('');
+}
+
+function getUserWeekRecord(nrPers, w) {
+  for (let wd of w.days.filter(d => d.dow >= 1 && d.dow <= 5)) {
+    const r = appState.pianificazione[`${nrPers}_${wd.dateStr}`];
+    if (r && r.tipo && String(r.tipo).trim() !== "") return r;
+  }
+  return null;
+}
+
+function calcolaTotaliUtente(nrPers) {
+  let v = 0, f = 0, p = 0, sommaPunti = 0;
+  appState.weeksMap.forEach(w => {
+    const rec = getUserWeekRecord(nrPers, w);
+    if (rec) {
+      if (rec.tipo === 'V') { v++; sommaPunti += getPuntiSettimana(w.weekNum); }
+      else if (rec.tipo === 'F' || rec.tipo === 'FLAZ') { f++; sommaPunti += getPuntiSettimana(w.weekNum); }
+      else if (rec.tipo === 'P' || rec.tipo === 'PF') { p++; sommaPunti += getPuntiSettimana(w.weekNum); }
+    }
+  });
+  const totSett = v + f + p, mediaPt = totSett > 0 ? (sommaPunti / (totSett * 5)).toFixed(2) : "0.00";
+  return {vCount:v, fCount:f, pCount:p, totalAllWeeks:totSett, sommaPuntiAnno:sommaPunti, mediaPuntiAnno:mediaPt, displayPunti:appState.config.rankingMetric==="MEDIA"?mediaPt:sommaPunti};
+}
+
+function formatQuotaCell(used, maxAllowed) {
+  const allowed = Number(maxAllowed) || 0;
+  if (used === 0 && allowed === 0) return {text:"", cls:""};
+  if (used > allowed) return {text:`${used}/${allowed}`, cls:"quota-exceeded"};
+  if (used === allowed && allowed > 0) return {text:`${used}/${allowed}`, cls:"quota-ok"};
+  return {text:`${used}/${allowed}`, cls:"quota-partial"};
+}
+
+function buildUserTooltipComment(user) {
+  let lines = [`Collaboratore: ${user.cognome} ${user.nome} (N° ${user.nrPersonale})`];
+  if (user.grado) lines.push(`Grado: ${user.grado}`);
+  if (user.funzione) lines.push(`Funzione: ${user.funzione}`);
+  if (user.unita) lines.push(`Unità: ${user.unita}`);
+  if (user.gruppo) lines.push(`Gruppo: ${user.gruppo}`);
+  lines.push(`Punti Anno ${appState.config.anno - 1}: ${user.puntiAnnoPrec || 0}`);
+  return lines.join(" | ");
+}
+
+function verificaBloccoPlausibilitaEConsecutive(user, weekObj, tipoScelto) {
+  if (appState.isAdmin) return null;
+  const tAtt = getTornataAttiva(), numTornata = tAtt ? String(tAtt.id) : "1", inRankingMode = isRoleInRankingMode(user.funzione);
+  if (inRankingMode) {
+    const activeTurnUser = getUtenteDiTurnoRanking(user.funzione);
+    if (!activeTurnUser) return `Modalità Ranking [${user.funzione}]: tutti i turni conclusi.`;
+    if (String(activeTurnUser.nrPersonale) !== String(user.nrPersonale)) return `Modalità Ranking [${user.funzione}]: in questo momento tocca a ${activeTurnUser.cognome} ${activeTurnUser.nome}.`;
+  }
+  const tot = calcolaTotaliUtente(user.nrPersonale);
+  const dirV = user.dirittoV !== undefined ? Number(user.dirittoV) : 5, dirF = user.dirittoF !== undefined ? Number(user.dirittoF) : 0, dirPF = user.dirittoPF !== undefined ? Number(user.dirittoPF) : 0;
+  if (tipoScelto === 'V' && tot.vCount >= dirV) return `Hai già pianificato tutte le ${dirV} settimane di V a disposizione!`;
+  if ((tipoScelto === 'F' || tipoScelto === 'FLAZ') && tot.fCount >= dirF) return `Hai già raggiunto il limite di ${dirF} settimane di F!`;
+  if ((tipoScelto === 'P' || tipoScelto === 'PF') && tot.pCount >= dirPF) return `Hai già raggiunto il limite di ${dirPF} settimane di PF!`;
+  if (tot.totalAllWeeks >= appState.config.maxWeeks) return `Raggiunto limite massimo di ${appState.config.maxWeeks} settimane annue.`;
+
+  for (let rule of appState.config.unifiedRules) {
+    if (rule.kind !== 'absence') continue;
+    if (rule.tornata !== 'TUTTE' && String(rule.tornata) !== numTornata) continue;
+    if (!weekMatchesRule(weekObj, rule) || !userMatchesRuleTarget(user, rule, user)) continue;
+    if (rule.maxTotalInPeriod !== undefined && rule.maxTotalInPeriod !== "" && Number(rule.maxTotalInPeriod) > 0) {
+      let gia = []; appState.weeksMap.forEach(w => { if (w.key !== weekObj.key && weekMatchesRule(w, rule) && getUserWeekRecord(user.nrPersonale, w)) gia.push(`Sett. ${w.weekNum}`); });
+      if (gia.length + 1 > Number(rule.maxTotalInPeriod)) return `Blocco Inserimento: limite massimo di ${rule.maxTotalInPeriod} sett. nel periodo raggiunto (${gia.join(", ")})!`;
+    }
+    if (rule.maxConsecutive !== undefined && rule.maxConsecutive !== "" && Number(rule.maxConsecutive) > 0) {
+      let consec = 1, idx = weekObj.index - 1;
+      while (idx >= 0 && getUserWeekRecord(user.nrPersonale, appState.weeksMap[idx])) { consec++; idx--; }
+      idx = weekObj.index + 1;
+      while (idx < appState.weeksMap.length && getUserWeekRecord(user.nrPersonale, appState.weeksMap[idx])) { consec++; idx++; }
+      if (consec > Number(rule.maxConsecutive)) return `Blocco Inserimento: non è consentito inserire più di ${rule.maxConsecutive} settimane consecutive!`;
+    }
+    if (inRankingMode) {
+      const targetDesc = formatRuleTargetBadge(rule, user);
+      if (Array.isArray(rule.allowedTypes) && rule.allowedTypes.length > 0 && !rule.allowedTypes.includes(tipoScelto)) return `Blocco Ranking (${targetDesc}): consentite solo [${rule.allowedTypes.join(', ')}]!`;
+      if (rule.maxConcurrent !== undefined && rule.maxConcurrent !== "") {
+        let ass = 0; appState.utenti.forEach(u => { if (String(u.nrPersonale) !== String(user.nrPersonale) && userMatchesRuleTarget(u, rule, user) && getUserWeekRecord(u.nrPersonale, weekObj)) ass++; });
+        if (ass >= Number(rule.maxConcurrent)) return `Blocco Ranking: nella Sett. ${weekObj.weekNum} raggiunto il limite di ${rule.maxConcurrent} assenze per [${targetDesc}]!`;
+      }
+    }
+  }
+  return null;
+}
+
+function analizzaProblematicheCalendario() {
+  const tAtt = getTornataAttiva(), numTornata = tAtt ? String(tAtt.id) : "1";
+  let problematiche = [], cellWarnings = {}, weekConflicts = new Set();
+  appState.weeksMap.forEach(w => {
+    appState.config.unifiedRules.forEach(rule => {
+      if (rule.kind !== 'absence') return;
+      if (rule.tornata !== 'TUTTE' && String(rule.tornata) !== numTornata) return;
+      if (!weekMatchesRule(w, rule)) return;
+      let buckets = {};
+      appState.utenti.forEach(u => {
+        if (!userMatchesRuleTarget(u, rule, null)) return;
+        const rec = getUserWeekRecord(u.nrPersonale, w); if (!rec) return;
+        const uKey = String(rule.targetUnita).toUpperCase() === "OGNI_UNITA" ? (u.unita || "Senza Unità") : "ALL_U";
+        const gKey = String(rule.targetGruppo).toUpperCase() === "OGNI_GRUPPO" ? (u.gruppo || "Senza Gruppo") : "ALL_G";
+        const bKey = `${uKey}__${gKey}`;
+        if (!buckets[bKey]) buckets[bKey] = [];
+        buckets[bKey].push({user:u, rec});
+        const targetDesc = formatRuleTargetBadge(rule, u);
+        if (rec.tipo !== 'K' && rec.tipo !== 'CORSO' && rec.tipo !== 'MIL' && Array.isArray(rule.allowedTypes) && rule.allowedTypes.length > 0 && !rule.allowedTypes.includes(rec.tipo)) {
+          const msg = `Tipo '${rec.tipo}' non previsto (${rule.allowedTypes.join(',')})`;
+          const cKey = `${u.nrPersonale}_${w.key}`; if (!cellWarnings[cKey]) cellWarnings[cKey] = []; cellWarnings[cKey].push(msg); weekConflicts.add(w.key);
+          problematiche.push({weekNum:w.weekNum,rangeLabel:w.rangeLabel,weekKey:w.key,tipoProblema:"Genere Non Consentito",gruppo:targetDesc,dettaglio:msg,utentiCoinvolti:[u]});
         }
+      });
+      if (rule.maxConcurrent !== undefined && rule.maxConcurrent !== "") {
+        Object.values(buckets).forEach(assentiGruppo => {
+          if (assentiGruppo.length > Number(rule.maxConcurrent)) {
+            const targetDesc = formatRuleTargetBadge(rule, assentiGruppo[0].user);
+            const nomi = assentiGruppo.map(x => `${x.user.cognome} ${x.user.nome}`).join(", ");
+            const msgC = `Superato limite [${targetDesc}]: ${assentiGruppo.length} su max ${rule.maxConcurrent} (${nomi})`;
+            weekConflicts.add(w.key);
+            assentiGruppo.forEach(x => { const cKey = `${x.user.nrPersonale}_${w.key}`; if (!cellWarnings[cKey]) cellWarnings[cKey] = []; cellWarnings[cKey].push(msgC); });
+            problematiche.push({weekNum:w.weekNum,rangeLabel:w.rangeLabel,weekKey:w.key,tipoProblema:`Eccesso Contemporanee (${assentiGruppo.length}/${rule.maxConcurrent})`,gruppo:targetDesc,dettaglio:rule.label||`Max ${rule.maxConcurrent}`,utentiCoinvolti:assentiGruppo.map(x => x.user)});
+          }
+        });
+      }
+    });
+  });
+  appState.problematicheAttive = problematiche; appState.cellWarningsMap = cellWarnings; appState.weekConflictsSet = weekConflicts;
+  const badge = document.getElementById("badgeProbCount"); if (badge) badge.innerText = problematiche.length;
+  const remBar = document.getElementById("warningReminderBar"), remTxt = document.getElementById("warningReminderText");
+  if (problematiche.length > 0) { remBar.style.display = "flex"; remTxt.innerText = `⚠️ Promemoria: ${problematiche.length} sovrapposizioni attive sul calendario.`; }
+  else remBar.style.display = "none";
+}
 
-        function onClassChange() { calculateAll(); }
+function setCalendarMode(mode) {
+  appState.calendarMode = mode;
+  document.getElementById("btnViewYear").classList.toggle("active", mode === 'year');
+  document.getElementById("btnViewMonth").classList.toggle("active", mode === 'month');
+  document.getElementById("btnViewWeek").classList.toggle("active", mode === 'week');
+  document.getElementById("boxMonthSelect").style.display = (mode === 'month') ? "block" : "none";
+  document.getElementById("boxWeekSelect").style.display = (mode === 'week') ? "block" : "none";
+  renderCalendar();
+}
 
-        // Gestisce il passaggio tra le diverse schede (Singolo Caso, Panoramica, Grafico)
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById('btn-' + tabId).classList.add('active');
+function renderCalendar() {
+  analizzaProblematicheCalendario(); aggiornaBarraTurnoRankingUtente(); aggiornaLarghezzaFitYear();
+  if (appState.calendarMode === 'year') renderAnnualWeeklyView(); else renderDailyView();
+}
+
+function renderAnnualWeeklyView() {
+  const head = document.getElementById("calHeader"), body = document.getElementById("calBody");
+  head.innerHTML = ""; body.innerHTML = "";
+  const weeks = appState.weeksMap; if (weeks.length === 0) return;
+  let monthGroups = [];
+  weeks.forEach(w => {
+    if (monthGroups.length === 0 || monthGroups[monthGroups.length-1].monthName !== w.headerMonth) monthGroups.push({monthName:w.headerMonth,count:1,lastWeekKey:w.key});
+    else { monthGroups[monthGroups.length-1].count++; monthGroups[monthGroups.length-1].lastWeekKey = w.key; }
+  });
+  const monthEndKeys = new Set(monthGroups.map(mg => mg.lastWeekKey));
+  const leftColSpan = appState.hideExtraCols ? 1 : 7, btnIcon = appState.hideExtraCols ? "▶ Espandi" : "◀ Comprimi", subPtLabel = appState.config.rankingMetric === "MEDIA" ? "Media" : "Tot.";
+
+  let trM = `<tr class="row-months"><th colspan="${leftColSpan}" class="sticky-c2 title-assenze-yellow" style="left:0!important">Assenze ${appState.config.anno} <button type="button" class="btn-inline-collapse" onclick="toggleHideExtraColumns()">${btnIcon}</button></th>`;
+  monthGroups.forEach(mg => { trM += `<th colspan="${mg.count}" class="month-border-right">${mg.monthName}</th>`; });
+  trM += `</tr>`;
+
+  let trR = `<tr class="row-ranges"><th rowspan="3" class="sticky-c1 collapsible-col">N°</th><th rowspan="3" class="sticky-c2" style="text-align:center!important">Grado<br>Cognome<br>Nome</th><th class="sticky-c3 collapsible-col">V - Vac.</th><th class="sticky-c4 collapsible-col">F - FLAZ</th><th class="sticky-c5 collapsible-col">P -<br>pr.fed.</th><th class="sticky-c6 collapsible-col">%</th><th class="sticky-c7 collapsible-col">Pt.</th>`;
+  weeks.forEach(w => {
+    const fmt = getWeekFormatInfo(w); let cls = []; if (monthEndKeys.has(w.key)) cls.push("month-border-right"); if (fmt.comment) cls.push("has-comment");
+    trR += `<th class="${cls.join(' ')}" ${fmt.color?`style="background-color:${fmt.color}!important"`:""} title="Sett. ${w.weekNum} ${fmt.comment?'- '+fmt.comment:''} (${w.punti} pt)"><span class="vertical-range">${w.rangeLabel}</span></th>`;
+  });
+  trR += `</tr>`;
+
+  let trW = `<tr class="row-weeknums"><th rowspan="2" class="sticky-c3 collapsible-col" style="font-size:.66rem">Settimane</th><th rowspan="2" class="sticky-c4 collapsible-col" style="font-size:.66rem">Settimane</th><th rowspan="2" class="sticky-c5 collapsible-col" style="font-size:.66rem">Singoli</th><th rowspan="2" class="sticky-c6 collapsible-col" style="font-size:.66rem">%</th><th rowspan="2" class="sticky-c7 collapsible-col" style="font-size:.64rem">${subPtLabel}</th>`;
+  weeks.forEach(w => {
+    const fmt = getWeekFormatInfo(w), hasC = appState.weekConflictsSet.has(w.key); let cls = []; if (monthEndKeys.has(w.key)) cls.push("month-border-right"); if (hasC) cls.push("week-header-conflict");
+    trW += `<th class="${cls.join(' ')}" ${(!hasC&&fmt.color)?`style="background-color:${fmt.color}!important"`:""}>${w.weekNum}${hasC?'⚠️':''}</th>`;
+  });
+  trW += `</tr><tr class="row-weekpts">`;
+  weeks.forEach(w => { trW += `<th class="${monthEndKeys.has(w.key)?'month-border-right':''}">${w.punti}pt</th>`; });
+  head.innerHTML = trM + trR + trW + `</tr>`;
+
+  const utentiFiltrati = appState.utenti.filter(u => utentePassaFiltroMultiFunzione(u)), tAtt = getTornataAttiva();
+  utentiFiltrati.forEach((user, idx) => {
+    let tr = document.createElement("tr"); tr.className = "user-row";
+    const isMyRow = appState.utenteLoggato && String(user.nrPersonale) === String(appState.utenteLoggato.nrPersonale);
+    if (isMyRow) tr.classList.add("my-row");
+    const inRank = isRoleInRankingMode(user.funzione), activeTurnU = inRank ? getUtenteDiTurnoRanking(user.funzione) : null;
+    const isUserOnTurn = activeTurnU && String(activeTurnU.nrPersonale) === String(user.nrPersonale);
+    if (isUserOnTurn) tr.classList.add("active-turn-row");
+
+    const tot = calcolaTotaliUtente(user.nrPersonale), perc = user.percentuale || 100;
+    const qV = formatQuotaCell(tot.vCount, user.dirittoV ?? 5), qF = formatQuotaCell(tot.fCount, user.dirittoF ?? 0), qP = formatQuotaCell(tot.pCount, user.dirittoPF ?? 0);
+    const commentTooltip = buildUserTooltipComment(user), gradoPrefix = user.grado ? `<span style="color:#555;font-size:.7rem">${user.grado}</span> ` : "";
+
+    tr.innerHTML = `<td class="sticky-c1 collapsible-col">${String(user.nrPersonale||(idx+1))}</td><td class="sticky-c2 has-comment" title="${commentTooltip}">${gradoPrefix}${user.cognome} ${user.nome} <span style="font-size:.66rem;color:#2980b9">(${user.funzione})</span>${isUserOnTurn?' 🟢':''}</td><td class="sticky-c3 collapsible-col ${qV.cls}">${qV.text}</td><td class="sticky-c4 collapsible-col ${qF.cls}">${qF.text}</td><td class="sticky-c5 collapsible-col ${qP.cls}">${qP.text}</td><td class="sticky-c6 collapsible-col">${perc}</td><td class="sticky-c7 collapsible-col">${tot.displayPunti}</td>`;
+
+    weeks.forEach(w => {
+      let td = document.createElement("td"); td.className = "cell-data";
+      if (monthEndKeys.has(w.key)) td.classList.add("month-border-right");
+      const fmt = getWeekFormatInfo(w); if (fmt.color) td.style.backgroundColor = fmt.color;
+      const foundRec = getUserWeekRecord(user.nrPersonale, w), warnList = appState.cellWarningsMap[`${user.nrPersonale}_${w.key}`];
+      if (foundRec) {
+        const displayTipo = foundRec.tipo === 'CORSO' ? 'K' : foundRec.tipo, colObj = getAbsenceCellColor(displayTipo, foundRec.tornata);
+        td.style.backgroundColor = colObj.bg; td.style.color = colObj.fg;
+        if (warnList && warnList.length > 0) { td.classList.add("cell-conflict"); td.innerHTML = `${displayTipo}<span class="conflict-icon">⚠️</span>`; td.title = `⚠️ PROBLEMATICA:\n• ` + warnList.join("\n• "); }
+        else { td.innerText = displayTipo; td.title = `${displayTipo} (${foundRec.tornata||1}ª Tornata - ${w.punti} pt)`; }
+      }
+      if (appState.isAdmin || (isMyRow && tAtt !== null && (!inRank || isUserOnTurn))) {
+        td.classList.add("editable");
+        td.onclick = () => clickSettimanaIntera(user, w);
+      } else {
+        td.classList.add("locked-cell");
+        if (isMyRow) {
+          td.onclick = () => {
+            if (tAtt === null) alert("🔒 Pianificazione bloccata: nessuna tornata attiva in questo momento.");
+            else if (inRank && !isUserOnTurn) alert(`🛑 Modalità Ranking [${user.funzione}]: non è ancora il tuo turno in graduatoria! In questo momento è di turno: ${activeTurnU ? activeTurnU.cognome + ' ' + activeTurnU.nome : 'Nessuno (Turni conclusi)'}.`);
+          };
         }
+      }
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
 
-        // Carica i dati di un profilo specifico quando clicchi sul suo pulsante
-        function loadProfile(key) {
-            activeProfileKey = key;
-            const p = PROFILES[key];
-            
-            // Ripristina i colori di tutti i pulsanti al grigio standard
-            document.querySelectorAll('[id^="card-"]').forEach(el => {
-                el.classList.remove('border-emerald-400', 'bg-slate-700', 'border-red-400', 'bg-red-900');
-                el.classList.add('border-slate-600', 'bg-slate-800');
-            });
+  const funzioniAttive = getFunzioniPerCalcoliTotali(), summaryColSpan = appState.hideExtraCols ? 1 : 6;
+  let trSp = `<tr class="spacer-row"><td class="sticky-c1 collapsible-col"></td><td colspan="${summaryColSpan + weeks.length}"></td></tr>`;
+  let trComp = `<tr class="row-tot-complessive"><td class="summary-left-idx collapsible-col"></td><td colspan="${summaryColSpan}" class="summary-label">Assenze complessive ( Utenti visualizzati )</td>`;
+  let righeFunzioniMap = {}; funzioniAttive.forEach(fName => { righeFunzioniMap[fName] = `<tr class="row-tot-role"><td class="summary-left-idx collapsible-col"></td><td colspan="${summaryColSpan}" class="summary-label">Assenze ${fName} in %</td>`; });
+  let trTot = `<tr class="row-tot-final"><td class="summary-left-idx collapsible-col"></td><td colspan="${summaryColSpan}" class="summary-label">Assenze complessive ${funzioniAttive.join(" + ")} in %</td>`;
 
-            // Gestione speciale per Ivan Romano (Dati incompleti)
-            if (p.incomplete) {
-                // Colora il pulsante di rosso
-                document.getElementById('card-' + key).classList.add('border-red-400', 'bg-red-900');
-                
-                // Pulisce i campi di input
-                document.getElementById('input-class').value = 1;
-                document.getElementById('input-salary').value = '';
-                document.getElementById('input-exp').value = '';
-                document.getElementById('input-age').value = '';
-                
-                // Mostra un avviso di errore nella scheda
-                document.getElementById('alignment-summary-card').innerHTML = `<h3 class="text-xl font-bold text-red-600 mb-2">Attenzione: Dati Incompleti</h3><p class="text-slate-600">I dati per <strong>${p.name}</strong> non sono disponibili o sono incompleti nel rapporto di sistema (es. tasso di occupazione 50% o salario non registrato). Impossibile effettuare una simulazione automatica.</p>`;
-                document.getElementById('audit-table-body').innerHTML = `<tr><td colspan="2" class="p-3 text-center text-slate-500 font-bold">Simulazione interrotta per mancanza di dati base.</td></tr>`;
-                
-                // Resetta i totali in alto
-                document.getElementById('disp-base').textContent = '-';
-                document.getElementById('disp-initial-exp').textContent = '-';
-                document.getElementById('disp-target-exp').textContent = '-';
-                document.getElementById('disp-max').textContent = '-';
+  weeks.forEach(w => {
+    let countHead = 0, sumPerFunzione = {}; funzioniAttive.forEach(fName => sumPerFunzione[fName] = 0);
+    utentiFiltrati.forEach(u => {
+      if (getUserWeekRecord(u.nrPersonale, w)) {
+        countHead++;
+        const quota = (Number(u.percentuale) || 100) / 100, uRoleUp = String(u.funzione || "").trim().toUpperCase();
+        funzioniAttive.forEach(fName => { const fUp = String(fName).trim().toUpperCase(); if (uRoleUp === fUp || uRoleUp.includes(fUp)) sumPerFunzione[fName] += quota; });
+      }
+    });
+    let sumCombined = 0; funzioniAttive.forEach(fName => sumCombined += sumPerFunzione[fName]);
+    const fmt = getWeekFormatInfo(w), hasC = appState.weekConflictsSet.has(w.key), bR = monthEndKeys.has(w.key) ? "month-border-right" : "", bg = fmt.color ? `style="background-color:${fmt.color}"` : "";
+    trComp += `<td class="${bR} ${hasC?'tot-cell-conflict':''}" ${!hasC?bg:''}>${countHead}</td>`;
+    funzioniAttive.forEach(fName => { righeFunzioniMap[fName] += `<td class="${bR}" ${bg}>${sumPerFunzione[fName].toFixed(2)}</td>`; });
+    trTot += `<td class="${bR}" ${bg}>${sumCombined.toFixed(2)}</td>`;
+  });
+  body.insertAdjacentHTML('beforeend', trSp + trComp + `</tr>` + funzioniAttive.map(f => righeFunzioniMap[f] + `</tr>`).join('') + trTot + `</tr>`);
+}
 
-                // Distrugge il grafico se esiste
-                if (projectionChartInstance) projectionChartInstance.destroy();
-                return; // Ferma l'esecuzione della funzione qui
-            }
+async function clickSettimanaIntera(userObj, weekObj) {
+  const nrT = userObj.nrPersonale, workDays = weekObj.days.filter(d => d.dow >= 1 && d.dow <= 5), exRec = getUserWeekRecord(nrT, weekObj);
+  if (!appState.isAdmin && exRec && exRec.da === "ADMIN") { alert("Settimana inserita dall'Amministratore: non modificabile."); return; }
+  const tipoScelto = appState.isAdmin ? document.getElementById("adminAbsenceType").value : document.getElementById("userAbsenceType").value;
+  const nuovoValore = exRec ? "" : tipoScelto;
+  if (!appState.isAdmin && nuovoValore !== "") {
+    const msgB = verificaBloccoPlausibilitaEConsecutive(userObj, weekObj, nuovoValore);
+    if (msgB) { alert("🛑 " + msgB); return; }
+  }
+  const tAtt = getTornataAttiva(), tornataNum = tAtt ? Number(tAtt.id) : 1, dateList = workDays.map(d => d.dateStr);
+  dateList.forEach(dStr => { if (nuovoValore) appState.pianificazione[`${nrT}_${dStr}`] = {tipo:nuovoValore, da:appState.isAdmin?"ADMIN":"UTENTE", tornata:tornataNum}; else delete appState.pianificazione[`${nrT}_${dStr}`]; });
+  renderCalendar();
+  const warn = appState.cellWarningsMap[`${nrT}_${weekObj.key}`];
+  if (!appState.isAdmin && nuovoValore !== "" && warn && warn.length > 0) alert(`⚠️ Scelta registrata con riserva!\n\n• ${warn.join("\n• ")}`);
+  try { await chiamaServer({azione:"toggleCella",isAdmin:appState.isAdmin,tornataNum,nrPersonaleTarget:nrT,nrPersonaleLoggato:appState.utenteLoggato?appState.utenteLoggato.nrPersonale:"ADMIN",nomeCompletoLoggato:appState.utenteLoggato?`${appState.utenteLoggato.cognome} ${appState.utenteLoggato.nome}`:"ADMIN",dateList,labelPeriodo:`Sett. ${weekObj.weekNum}`,valore:nuovoValore}); } catch(e) {}
+}
 
-            // Se il profilo è valido, colora il pulsante di verde
-            document.getElementById('card-' + key).classList.add('border-emerald-400', 'bg-slate-700');
+function renderDailyView() {
+  const mode = appState.calendarMode, year = appState.config.anno, head = document.getElementById("calHeader"), body = document.getElementById("calBody");
+  head.innerHTML = ""; body.innerHTML = "";
+  let daysToShow = mode === 'month' ? appState.allYearDays.filter(d => d.month === parseInt(document.getElementById("monthSelector").value) && d.year === year) : (appState.weeksMap[parseInt(document.getElementById("weekSelector").value)||0]?.days || []);
+  if (daysToShow.length === 0) return;
+  let wGroups = []; daysToShow.forEach(d => { if (wGroups.length===0 || wGroups[wGroups.length-1].weekKey !== d.weekKey) wGroups.push({weekKey:d.weekKey,weekNum:d.weekNum,count:1}); else wGroups[wGroups.length-1].count++; });
+  const leftColSpan = appState.hideExtraCols ? 1 : 7;
+  let trW = `<tr class="row-months"><th colspan="${leftColSpan}" class="sticky-c2 title-assenze-yellow" style="left:0!important">Assenze ${year}</th>`;
+  wGroups.forEach(wg => { trW += `<th colspan="${wg.count}" class="month-border-right">Sett. ${wg.weekNum} (${getPuntiSettimana(wg.weekNum)} pt)</th>`; });
+  let trD = `<tr class="row-weeknums"><th class="sticky-c1 collapsible-col">N°</th><th class="sticky-c2">Cognome Nome</th><th class="sticky-c3 collapsible-col">V</th><th class="sticky-c4 collapsible-col">F</th><th class="sticky-c5 collapsible-col">P</th><th class="sticky-c6 collapsible-col">%</th><th class="sticky-c7 collapsible-col">Pt.</th>`;
+  daysToShow.forEach(d => { trD += `<th class="${(d.dow===0||d.dow===6)?'weekend-col':''}" style="min-width:36px">${GIORNI_SETT[d.dow]}<br>${d.day}.${d.month+1}</th>`; });
+  head.innerHTML = trW + `</tr>` + trD + `</tr>`;
 
-            // Inserisce i dati nei campi di testo
-            document.getElementById('input-class').value = p.cls;
-            document.getElementById('input-salary').value = p.currentSalary.toFixed(2);
-            document.getElementById('input-exp').value = p.expYears;
-            document.getElementById('input-perf').value = p.perf || 'good';
-            document.getElementById('input-age').value = p.age || '';
+  const tAtt = getTornataAttiva(), utentiFiltrati = appState.utenti.filter(u => utentePassaFiltroMultiFunzione(u));
+  utentiFiltrati.forEach((user, idx) => {
+    let tr = document.createElement("tr"); tr.className = "user-row";
+    const isMyRow = appState.utenteLoggato && String(user.nrPersonale) === String(appState.utenteLoggato.nrPersonale);
+    if (isMyRow) tr.classList.add("my-row");
+    const tot = calcolaTotaliUtente(user.nrPersonale), qV = formatQuotaCell(tot.vCount, user.dirittoV??5), qF = formatQuotaCell(tot.fCount, user.dirittoF??0), qP = formatQuotaCell(tot.pCount, user.dirittoPF??0);
+    tr.innerHTML = `<td class="sticky-c1 collapsible-col">${String(user.nrPersonale||(idx+1))}</td><td class="sticky-c2 has-comment" title="${buildUserTooltipComment(user)}">${user.grado?user.grado+' ':''}${user.cognome} ${user.nome} (${user.funzione})</td><td class="sticky-c3 collapsible-col ${qV.cls}">${qV.text}</td><td class="sticky-c4 collapsible-col ${qF.cls}">${qF.text}</td><td class="sticky-c5 collapsible-col ${qP.cls}">${qP.text}</td><td class="sticky-c6 collapsible-col">${user.percentuale||100}</td><td class="sticky-c7 collapsible-col">${tot.displayPunti}</td>`;
+    daysToShow.forEach(d => {
+      let td = document.createElement("td"); td.className = "cell-data";
+      if (d.dow === 0 || d.dow === 6) td.classList.add("weekend-col");
+      const cellKey = `${user.nrPersonale}_${d.dateStr}`, rec = appState.pianificazione[cellKey];
+      if (rec) {
+        const displayTipo = rec.tipo === 'CORSO' ? 'K' : rec.tipo, colObj = getAbsenceCellColor(displayTipo, rec.tornata);
+        td.style.backgroundColor = colObj.bg; td.style.color = colObj.fg; td.innerText = displayTipo;
+      }
+      if (appState.isAdmin || (isMyRow && tAtt !== null)) { td.classList.add("editable"); td.onclick = () => clickSingoloGiorno(user, d); }
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+}
 
-            // Avvia i calcoli matematici
-            calculateAll();
-        }
+async function clickSingoloGiorno(userObj, dayObj) {
+  const nrT = userObj.nrPersonale, dateStr = dayObj.dateStr, cellKey = `${nrT}_${dateStr}`, rec = appState.pianificazione[cellKey];
+  if (!appState.isAdmin && rec && rec.da === "ADMIN") return;
+  const nuovoValore = rec ? "" : (appState.isAdmin ? document.getElementById("adminAbsenceType").value : document.getElementById("userAbsenceType").value);
+  const tAtt = getTornataAttiva(), tornataNum = tAtt ? Number(tAtt.id) : 1;
+  if (nuovoValore) appState.pianificazione[cellKey] = {tipo:nuovoValore, da:appState.isAdmin?"ADMIN":"UTENTE", tornata:tornataNum}; else delete appState.pianificazione[cellKey];
+  renderCalendar();
+  try { await chiamaServer({azione:"toggleCella",isAdmin:appState.isAdmin,tornataNum,nrPersonaleTarget:nrT,nrPersonaleLoggato:appState.utenteLoggato?appState.utenteLoggato.nrPersonale:"ADMIN",nomeCompletoLoggato:"UTENTE",dateList:[dateStr],labelPeriodo:dateStr,valore:nuovoValore}); } catch(e) {}
+}
 
-        // Cuore matematico del simulatore
-        function calculateAll() {
-            // Controlla se siamo su Ivan Romano (se sì, blocca i calcoli per evitare errori)
-            if (PROFILES[activeProfileKey].incomplete) return;
+function apriModaleReportProblematiche() { analizzaProblematicheCalendario(); popolaSelettoriModaleDivergenze(); renderTabelleReportProblematiche(); document.getElementById("reportProbModal").style.display = "flex"; }
+function chiudiModaleReportProblematiche() { document.getElementById("reportProbModal").style.display = "none"; }
+function popolaSelettoriModaleDivergenze() {
+  document.getElementById("divPeriodoSelect").innerHTML = appState.weeksMap.map(w => `<option value="Sett. ${w.weekNum} (${w.rangeLabel})" data-weekkey="${w.key}">Sett. ${w.weekNum} (${w.rangeLabel})</option>`).join('');
+  const opts = appState.utenti.map(u => `<option value="N° ${u.nrPersonale} - ${u.cognome} ${u.nome} (${u.funzione})" data-nr="${u.nrPersonale}">N° ${u.nrPersonale} - ${u.cognome} ${u.nome} (${u.funzione})</option>`).join('');
+  document.getElementById("divUtenteCede").innerHTML = opts; document.getElementById("divUtenteFavorito").innerHTML = opts;
+}
+function precompilaAccordoDaConflitto(wNum, rLab, nr1, nr2) {
+  document.getElementById("divPeriodoSelect").value = `Sett. ${wNum} (${rLab})`;
+  const sC = document.getElementById("divUtenteCede"), sF = document.getElementById("divUtenteFavorito");
+  for (let o of sC.options) if (o.getAttribute("data-nr") === String(nr1)) { sC.value = o.value; break; }
+  for (let o of sF.options) if (o.getAttribute("data-nr") === String(nr2)) { sF.value = o.value; break; }
+  document.getElementById("divNote").value = `Cede Sett. ${wNum}; priorità per l'anno prossimo.`;
+}
+function renderTabelleReportProblematiche() {
+  const bA = document.getElementById("activeProblemsContainer");
+  if (appState.problematicheAttive.length === 0) bA.innerHTML = `<div style="background:#d4efdf;color:#1e8449;padding:10px;border-radius:6px;font-weight:700">✅ Nessuna problematica attiva!</div>`;
+  else {
+    let h = `<table class="report-table"><thead><tr><th>Settimana</th><th>Target</th><th>Problematica</th><th>Coinvolti</th><th>Azione</th></tr></thead><tbody>`;
+    appState.problematicheAttive.forEach(p => {
+      const uL = p.utentiCoinvolti.map(u => `<b>${u.cognome} ${u.nome}</b>`).join(", ");
+      const nr1 = p.utentiCoinvolti[0]?.nrPersonale || "", nr2 = p.utentiCoinvolti[1]?.nrPersonale || nr1;
+      h += `<tr><td><b>Sett. ${p.weekNum}</b></td><td><span class="badge" style="background:#c0392b;color:#fff">${p.gruppo}</span></td><td><b>${p.tipoProblema}</b></td><td>${uL}</td><td><button type="button" class="btn" style="background:#e67e22;padding:4px 8px;font-size:.75rem" onclick="precompilaAccordoDaConflitto(${p.weekNum},'${p.rangeLabel}','${nr1}','${nr2}')">🤝 Accordo</button></td></tr>`;
+    });
+    bA.innerHTML = h + `</tbody></table>`;
+  }
+  const bR = document.getElementById("resolvedDivergenzeContainer");
+  if (!appState.divergenze || appState.divergenze.length === 0) bR.innerHTML = `<div style="color:#7f8c8d;padding:8px">Nessuna divergenza registrata.</div>`;
+  else {
+    let hR = `<table class="report-table"><thead><tr><th>Data</th><th>Anno</th><th>Periodo</th><th>Cede</th><th>A favore di</th><th>Note</th><th></th></tr></thead><tbody>`;
+    appState.divergenze.forEach(d => { hR += `<tr><td>${d.dataReg}</td><td><b>${d.anno}</b></td><td><b>${d.periodo}</b></td><td>${d.utenteCede}</td><td>${d.utenteFavorito}</td><td>${d.note}</td><td><button type="button" class="btn-delete" onclick="eliminaDivergenza('${d.id}')">✖</button></td></tr>`; });
+    bR.innerHTML = hR + `</tbody></table>`;
+  }
+}
 
-            const cls = parseInt(document.getElementById('input-class').value) || 17;
-            const baseSalary = OFFICIAL_CLASS_BASES[cls];
-            const currentSalary = parseFloat(document.getElementById('input-salary').value) || 0;
-            const expYears = parseInt(document.getElementById('input-exp').value) || 0;
-            const perf = document.getElementById('input-perf').value;
-            
-            const userAgeInput = document.getElementById('input-age').value;
-            const chartAge = parseInt(userAgeInput) || 40; 
+async function registraDivergenzaAppianata() {
+  const sP = document.getElementById("divPeriodoSelect"), sC = document.getElementById("divUtenteCede"), sF = document.getElementById("divUtenteFavorito"), note = document.getElementById("divNote").value.trim();
+  if (!sP.value || !sC.value || !sF.value || sC.value === sF.value) { alert("Seleziona due collaboratori diversi!"); return; }
+  const wKey = sP.options[sP.selectedIndex].getAttribute("data-weekkey"), nrCede = sC.options[sC.selectedIndex].getAttribute("data-nr");
+  if (document.getElementById("chkRemoveCedeVacation").checked && wKey && nrCede) {
+    const wObj = appState.weeksMap.find(w => w.key === wKey);
+    if (wObj) {
+      const dList = wObj.days.filter(d => d.dow >= 1 && d.dow <= 5).map(d => d.dateStr);
+      dList.forEach(dS => delete appState.pianificazione[`${nrCede}_${dS}`]);
+      try { await chiamaServer({azione:"toggleCella",isAdmin:true,nrPersonaleTarget:nrCede,nrPersonaleLoggato:"ADMIN",nomeCompletoLoggato:"ADMIN",dateList:dList,valore:""}); } catch(e) {}
+    }
+  }
+  try { const ris = await chiamaServer({azione:"salvaDivergenza",anno:appState.config.anno,periodo:sP.value,utenteCede:sC.value,utenteFavorito:sF.value,note}); if (ris && ris.successo) appState.divergenze.push(ris.record); } catch(e) {}
+  renderCalendar(); renderTabelleReportProblematiche();
+}
+async function eliminaDivergenza(idRec) { try { await chiamaServer({azione:"eliminaDivergenza",id:idRec}); } catch(e) {} appState.divergenze = appState.divergenze.filter(d => String(d.id) !== String(idRec)); renderTabelleReportProblematiche(); }
 
-            // Verifichiamo se l'utente ha modificato manualmente i dati a schermo rispetto al profilo originale
-            const p = PROFILES[activeProfileKey];
-            const isOriginal = p && p.cls === cls && Math.abs(p.currentSalary - currentSalary) < 1 && p.expYears === expYears;
+function popolaTutteDropdownFunzioni() {
+  const fL = appState.config.funzioni || ["Cgr","Csq","SDSC","REV","AssD","M","P"];
+  const gL = appState.config.gradi || ["Sgtm","Aiut","Cpl","App","AssD","Spec"];
+  const uL = appState.config.unita || ["Unità 1","Unità 2","Unità 3","Unità 4"];
+  const grL = appState.config.gruppi || ["Gruppo 1","Gruppo 2","Gruppo 3","Gruppo 4","Gruppo 5","Gruppo 6"];
 
-            const targetVal = isOriginal ? p.targetValExact : baseSalary * getTargetMult(expYears);
-            const pavimentoVal = isOriginal ? p.initialPavimentoExact : baseSalary * getPavimentoMult(expYears);
-            
-            let finalSalary = isOriginal ? p.finalSalaryExact : 0;
-            let structAdj = isOriginal ? p.structAdjExact : 0;
-            
-            // Ricalcolo necessario se i dati sono stati modificati a mano
-            if (!isOriginal) {
-                const theoInc = baseSalary * getTheoRate(expYears);
-                if (currentSalary >= targetVal) {
-                    finalSalary = currentSalary; structAdj = 0;
-                } else if (currentSalary + theoInc < pavimentoVal) {
-                    finalSalary = pavimentoVal; structAdj = pavimentoVal - currentSalary;
-                } else {
-                    finalSalary = Math.min(targetVal, currentSalary + theoInc); structAdj = 0;
-                }
-            }
+  document.getElementById("addUserRole").innerHTML = fL.map(f => `<option value="${f}">${f}</option>`).join('');
+  document.getElementById("addUserGrado").innerHTML = `<option value="">- Grado -</option>` + gL.map(g => `<option value="${g}">${g}</option>`).join('');
+  document.getElementById("addUserUnita").innerHTML = `<option value="">- Unità -</option>` + uL.map(u => `<option value="${u}">${u}</option>`).join('');
+  document.getElementById("addUserGruppo").innerHTML = `<option value="">- Gruppo -</option>` + grL.map(gr => `<option value="${gr}">${gr}</option>`).join('');
 
-            // LA NOSTRA CORREZIONE: Calcolo separato e garantito per le Prestazioni
-            let performanceBonus = 0;
-            if (perf === 'plus_05') {
-                performanceBonus = currentSalary * 0.005;
-            } else if (perf === 'plus_10') {
-                performanceBonus = currentSalary * (currentSalary >= targetVal ? 0.005 : 0.010);
-            }
-            
-            // Somma finale
-            finalSalary += performanceBonus;
+  document.getElementById("absTargetGroup").innerHTML = `<option value="TUTTI" selected>-- TUTTE LE FUNZIONI --</option>` + fL.map(f => `<option value="${f}">${f}</option>`).join('');
+  document.getElementById("absTargetUnita").innerHTML = `<option value="TUTTE" selected>-- TUTTE LE UNITÀ --</option><option value="OGNI_UNITA" style="color:#16a085">🔄 OGNI SINGOLA UNITÀ (Separatamente)</option>` + uL.map(u => `<option value="${u}">${u}</option>`).join('');
+  document.getElementById("absTargetGruppo").innerHTML = `<option value="TUTTI" selected>-- TUTTI I GRUPPI --</option><option value="OGNI_GRUPPO" style="color:#8e44ad">🔄 OGNI SINGOLO GRUPPO (Separatamente)</option>` + grL.map(gr => `<option value="${gr}">${gr}</option>`).join('');
+  renderMultiRoleFilterBar();
+}
 
-            // Aggiorna l'interfaccia (riquadri in alto)
-            document.getElementById('disp-base').textContent = `CHF ${formatCHF(baseSalary)}`;
-            document.getElementById('disp-initial-exp').textContent = `CHF ${formatCHF(pavimentoVal)}`;
-            document.getElementById('disp-target-exp').textContent = `CHF ${formatCHF(targetVal)}`;
-            document.getElementById('disp-max').textContent = `CHF ${formatCHF(baseSalary * 1.6)}`;
+// LOGIN CON CONTROLLO PRIMO ACCESSO (PASSWORD = NR. PERSONALE) E OBBLIGO CAMBIO PASSWORD
+async function eseguiLogin() {
+  const nr = document.getElementById("logNrPers").value.trim(), pw = document.getElementById("logPass").value.trim();
+  if (!nr || !pw) { document.getElementById("authMsg").innerText = "Inserisci Numero Personale e Password!"; return; }
+  const btn = document.getElementById("btnLoginSubmit"); btn.disabled = true; btn.innerText = "Verifica in corso...";
+  document.getElementById("authMsg").innerText = "";
+  try {
+    const ris = await chiamaServer({azione:"login", nrPersonale:nr, password:pw});
+    if (ris && ris.successo) {
+      if (ris.richiedeCambioPassword) {
+        pendingFirstLoginUser = ris.utente;
+        document.getElementById("modalTitle").innerText = `Primo Accesso: ${ris.utente.cognome} ${ris.utente.nome}`;
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("changePwdForm").style.display = "block";
+        document.getElementById("newPwd1").focus();
+      } else {
+        setAuthCookie({ utente: ris.utente, isAdmin: ris.isAdmin === true });
+        applicaSessioneUtente(ris.utente, ris.isAdmin === true);
+      }
+    } else {
+      document.getElementById("authMsg").innerText = (ris && ris.messaggio) ? ris.messaggio : "Credenziali errate.";
+    }
+  } catch(e) { document.getElementById("authMsg").innerText = e.message; }
+  btn.disabled = false; btn.innerText = "Entra";
+}
 
-            // Crea la tabella dei dettagli
-            document.getElementById('audit-table-body').innerHTML = `
-                <tr><td class="p-3 font-bold text-slate-800">1. Stipendio Attuale</td><td class="p-3 text-right text-slate-800">CHF ${formatCHF(currentSalary)}</td></tr>
-                <tr class="bg-brand-50"><td class="p-3 font-bold text-brand-900">2. Target Evoluzione (Art. 39)</td><td class="p-3 text-right text-brand-800">CHF ${formatCHF(targetVal)}</td></tr>
-                <tr class="bg-emerald-50"><td class="p-3 font-bold text-emerald-900">3. Pavimento Minimo (Art. 37)</td><td class="p-3 text-right text-emerald-800">CHF ${formatCHF(pavimentoVal)}</td></tr>
-                <tr class="bg-amber-50"><td class="p-3 font-bold text-amber-900">4. Adeguamento Strutturale Riconosciuto</td><td class="p-3 text-right text-amber-800">CHF ${formatCHF(structAdj)}</td></tr>
-                ${performanceBonus > 0 ? `<tr class="bg-blue-50"><td class="p-3 font-bold text-blue-900">5. Bonus Prestazioni Eccellenti</td><td class="p-3 text-right text-blue-800">+ CHF ${formatCHF(performanceBonus)}</td></tr>` : ''}
-                <tr class="font-bold text-lg"><td class="p-3">Nuovo Stipendio Definitivo 2027</td><td class="p-3 text-right">CHF ${formatCHF(finalSalary)}</td></tr>
-            `;
+async function confermaCambioPasswordPrimoAccesso() {
+  if (!pendingFirstLoginUser) return;
+  const p1 = document.getElementById("newPwd1").value.trim(), p2 = document.getElementById("newPwd2").value.trim();
+  if (!p1 || p1.length < 4) { document.getElementById("authMsg").innerText = "La nuova password deve avere almeno 4 caratteri!"; return; }
+  if (p1.toLowerCase() === String(pendingFirstLoginUser.nrPersonale).toLowerCase()) { document.getElementById("authMsg").innerText = "🛑 La nuova password deve essere diversa dal tuo Numero Personale!"; return; }
+  if (p1 !== p2) { document.getElementById("authMsg").innerText = "Le due password non coincidono!"; return; }
+  const btn = document.getElementById("btnSaveNewPwd"); btn.disabled = true; btn.innerText = "Salvataggio...";
+  try {
+    const ris = await chiamaServer({azione:"cambiaPasswordUtente", nrPersonale:pendingFirstLoginUser.nrPersonale, nuovaPassword:p1});
+    if (ris && ris.successo) {
+      setAuthCookie({ utente: pendingFirstLoginUser, isAdmin: false });
+      applicaSessioneUtente(pendingFirstLoginUser, false);
+      pendingFirstLoginUser = null;
+    } else document.getElementById("authMsg").innerText = ris?.messaggio || "Errore salvataggio password.";
+  } catch(e) { document.getElementById("authMsg").innerText = e.message; }
+  btn.disabled = false; btn.innerText = "💾 Salva Password ed Entra";
+}
 
-            // Messaggio dinamico per l'utente
-            let cardText = "Evoluzione calcolata secondo le regole base.";
-            if (structAdj > 0) cardText = "L'evoluzione ordinaria arriverebbe sotto la soglia di legge. Il sistema ha applicato un adeguamento d'ufficio per garantirti il Pavimento Minimo.";
-            if (currentSalary >= targetVal) cardText = "Il tuo stipendio attuale ha già raggiunto o superato il Target di Evoluzione. L'evoluzione ordinaria per te è del 0.00%.";
-            if (performanceBonus > 0) cardText += " È stato inoltre applicato un premio aggiuntivo per prestazioni eccellenti!";
+async function resetPasswordCollaboratoreDaAdmin(nrP) {
+  if (!confirm(`Vuoi ripristinare la password del collaboratore N° ${nrP} riportandola uguale al suo Numero Personale (${nrP})?`)) return;
+  try {
+    const ris = await chiamaServer({azione:"cambiaPasswordUtente", nrPersonale:nrP, nuovaPassword:String(nrP)});
+    if (ris && ris.successo) alert(`✅ Password per N° ${nrP} ripristinata a: ${nrP}.\nAl prossimo accesso l'utente dovrà impostare una nuova password.`);
+  } catch(e) { alert("Errore: " + e.message); }
+}
 
-            document.getElementById('alignment-summary-card').innerHTML = `<h3 class="text-xl font-bold text-brand-800 mb-2">Esito del Calcolo: CHF ${formatCHF(finalSalary)}</h3><p class="text-slate-600">${cardText}</p>`;
+function logout() { clearAuthCookie(); appState.utenteLoggato = null; appState.isAdmin = false; location.reload(); }
 
-            // Chiama la funzione per disegnare il grafico
-            drawChart(currentSalary, finalSalary, expYears, chartAge, 65, baseSalary);
-        }
+function aggiornaBadgeUtente() {
+  if (!appState.utenteLoggato) return;
+  const u = appState.utenteLoggato, tagAdm = appState.isAdmin ? " 🛠️ [ADMIN]" : ` | Diritto: ${u.dirittoV??5}V, ${u.dirittoF??0}F, ${u.dirittoPF??0}PF`;
+  document.getElementById("userBadge").innerText = `👤 ${u.cognome} ${u.nome} (N° ${u.nrPersonale} | ${[u.grado,u.funzione,u.unita,u.gruppo].filter(Boolean).join(" • ")}${tagAdm})`;
+  document.getElementById("navYear").innerText = appState.config.anno;
+}
 
-        // Funzione per disegnare il grafico fino all'età della pensione
-        function drawChart(currentSal, finalSal, exp, age, retireAge, baseSalary) {
-            const years = Math.max(1, retireAge - age);
-            const labels = [];
-            const dataGood = [];
-            let sal = finalSal;
+function aggiornaBannerTornata() {
+  const b = document.getElementById("statusBanner"), t = getTornataAttiva(), mode = String(appState.config.manualActiveTornata || "AUTO");
+  const modeLabel = (mode === "1" || mode === "2" || mode === "3") ? " [ATTIVATA MANUALMENTE DALL'ADMIN]" : "";
+  if (appState.isAdmin) { b.className = "status-banner status-admin-mode"; b.innerText = `🛠️ MODALITÀ ADMIN ATTIVA (Blocchi disattivati) | Tornata corrente: ${t ? t.nome + modeLabel : 'NESSUNA (Chiuso)'}`; return; }
+  if (t) { b.className = "status-banner status-open"; b.innerText = `🟢 ${t.nome} ATTIVA${modeLabel}: Clicca sulle celle della tua riga per pianificare.`; }
+  else { b.className = "status-banner status-closed"; b.innerText = "🔒 PIANIFICAZIONE BLOCCATA: Nessuna tornata attiva. Sola lettura."; }
+}
 
-            for (let i = 0; i <= years; i++) {
-                labels.push(`${age + i} anni`);
-                dataGood.push(sal);
-                const target = baseSalary * getTargetMult(exp + i);
-                if (sal < target) sal = Math.min(target, sal + baseSalary * getTheoRate(exp + i));
-            }
+function toggleView() {
+  if (!appState.isAdmin) return;
+  const cV = document.getElementById('viewCalendar'), aV = document.getElementById('viewAdmin'), btn = document.getElementById('btnSwitchView');
+  if (cV.classList.contains('active')) { cV.classList.remove('active'); aV.classList.add('active'); btn.innerText = "📅 Torna al Calendario"; renderAdminData(); }
+  else { aV.classList.remove('active'); cV.classList.add('active'); btn.innerText = "⚙️ Pannello Admin"; renderCalendar(); }
+}
 
-            const ctx = document.getElementById('projectionChart').getContext('2d');
-            if (projectionChartInstance) projectionChartInstance.destroy();
-            projectionChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Evoluzione Salariale Prevista (CHF)',
-                        data: dataGood,
-                        borderColor: '#004e89',
-                        backgroundColor: 'rgba(0, 78, 137, 0.1)',
-                        fill: true,
-                        tension: 0.1
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
+function toggleRuleBuilderUI() { const k = document.getElementById("ruleKind").value; document.getElementById("sectionFormatRule").style.display = (k==="format")?"block":"none"; document.getElementById("sectionAbsenceRule").style.display = (k==="absence")?"block":"none"; }
+function togglePeriodInputUI() { const p = document.getElementById("rulePeriodType").value; document.getElementById("boxRuleWeeks").style.display = (p==="weeks")?"block":"none"; document.getElementById("boxRuleDates").style.display = (p==="dates")?"block":"none"; }
+function cambiaOverrideManualeTornata() { appState.config.manualActiveTornata = document.getElementById("manualTornataSelect").value; aggiornaUIStatoTornateAdmin(); aggiornaBannerTornata(); renderCalendar(); }
+function toggleManualTornataBtn(idNum) {
+  const cur = String(appState.config.manualActiveTornata || "AUTO");
+  appState.config.manualActiveTornata = (cur === String(idNum)) ? "AUTO" : String(idNum);
+  document.getElementById("manualTornataSelect").value = appState.config.manualActiveTornata;
+  aggiornaUIStatoTornateAdmin(); aggiornaBannerTornata(); renderCalendar();
+}
+function aggiornaUIStatoTornateAdmin() {
+  const tAtt = getTornataAttiva(), activeId = tAtt ? Number(tAtt.id) : 0, manualMode = String(appState.config.manualActiveTornata || "AUTO");
+  [1, 2, 3].forEach(n => {
+    const box = document.getElementById(`boxTornata${n}`), btn = document.getElementById(`btnForceT${n}`);
+    if (!box || !btn) return;
+    box.classList.toggle("active-tornata-box", activeId === n);
+    btn.style.background = manualMode === String(n) ? "#27ae60" : "#7f8c8d";
+    btn.innerText = manualMode === String(n) ? "🟢 ATTIVA ORA (Clicca per Spegnere)" : "Attiva Manualmente";
+  });
+}
+function toggleRoleRankingMode(roleName) {
+  if (!Array.isArray(appState.config.rankingRoles)) appState.config.rankingRoles = [];
+  const idx = appState.config.rankingRoles.indexOf(roleName);
+  if (idx >= 0) appState.config.rankingRoles.splice(idx, 1); else appState.config.rankingRoles.push(roleName);
+  renderAdminData(); renderMultiRoleFilterBar(); renderCalendar();
+}
+function aggiornaSingoloPunteggioSettimana(wNum, val) { const n = parseInt(val, 10); if (!isNaN(n)) { appState.config.punteggiSettimane[wNum] = n; generaGiorniESettimaneAnno(appState.config.anno); renderCalendar(); } }
 
-        // Genera la tab dei confronti usando la lista dei profili, saltando i dati incompleti
-        function generateComparativeCards() {
-            let html = "";
-            for (let key in PROFILES) {
-                const p = PROFILES[key];
-                
-                if (p.incomplete) {
-                    html += `
-                    <div class="border rounded-xl p-5 bg-slate-100 border-slate-300 flex flex-col opacity-60">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="font-bold text-slate-500">${p.name}</span>
-                            <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-full">Dati Mancanti</span>
-                        </div>
-                        <p class="text-xs text-slate-500 text-center mt-4">Nessun dato strutturale disponibile per effettuare la comparazione.</p>
-                    </div>`;
-                    continue; // Passa al collaboratore successivo
-                }
+function renderAdminData() {
+  const annoCurr = Number(appState.config.anno) || 2027, annoPrec = annoCurr - 1;
+  const selTargetY = document.getElementById("selConsolidateTargetYear");
+  if (selTargetY) selTargetY.innerHTML = `<option value="${annoCurr}">Anno ${annoCurr} (Per Ranking ${annoCurr+1})</option><option value="${annoPrec}">Anno ${annoPrec} (Per Ranking ${annoCurr})</option>`;
+  document.getElementById("selRankingMetric").value = appState.config.rankingMetric || "TOTALE";
+  document.getElementById("manualTornataSelect").value = appState.config.manualActiveTornata || "AUTO";
+  const t = appState.config.tornate;
+  [1, 2, 3].forEach((n, idx) => {
+    if (t[idx]) {
+      document.getElementById(`t${n}_start`).value = t[idx].inizio || ""; document.getElementById(`t${n}_end`).value = t[idx].fine || "";
+      document.getElementById(`t${n}_colV`).value = t[idx].colorV || "#ffff00"; document.getElementById(`t${n}_colF`).value = t[idx].colorF || "#bfbfbf"; document.getElementById(`t${n}_colP`).value = t[idx].colorP || "#ff99cc";
+    }
+  });
+  aggiornaUIStatoTornateAdmin(); validaDateTornate();
+  document.getElementById("adminYear").value = appState.config.anno; document.getElementById("maxWeeks").value = appState.config.maxWeeks;
 
-                const badge = p.structAdjExact > 0 ? "Protezione Pavimento" : (p.totalIncPctExact === 0 ? "Sopra Target" : "Evoluzione OK");
-                const color = p.structAdjExact > 0 ? "emerald" : (p.totalIncPctExact === 0 ? "purple" : "brand");
-                html += `
-                    <div class="border rounded-xl p-5 bg-${color}-50 border-${color}-200 flex flex-col">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="font-bold text-slate-800">${p.name}</span>
-                            <span class="bg-${color}-200 text-${color}-800 text-xs px-2 py-1 rounded-full">${badge}</span>
-                        </div>
-                        <p class="text-xs text-slate-600 mb-1">Classe ${p.cls} - ${p.expYears} anni exp.</p>
-                        <p class="text-xs text-slate-600 mb-2">Da <strong>CHF ${formatCHF(p.currentSalary)}</strong> a <strong class="text-${color}-700">CHF ${formatCHF(p.finalSalaryExact)}</strong></p>
-                        <div class="mt-auto pt-2 border-t text-xs font-bold text-${color}-800">Aumento base stimato: +${p.totalIncPctExact}%</div>
-                    </div>`;
-            }
-            document.getElementById('dossiers-details').innerHTML = html;
-        }
-    </script>
+  document.getElementById("rolesTagContainer").innerHTML = appState.config.funzioni.map(f => `<span class="badge" style="background:#2c3e50;color:#fff;display:flex;align-items:center;gap:5px">${f} <span style="cursor:pointer;color:#ff7675" onclick="removeBaseItem('funzioni','${f}')">✖</span></span>`).join('');
+  document.getElementById("gradiTagContainer").innerHTML = appState.config.gradi.map(g => `<span class="badge" style="background:#34495e;color:#fff;display:flex;align-items:center;gap:5px">${g} <span style="cursor:pointer;color:#ff7675" onclick="removeBaseItem('gradi','${g}')">✖</span></span>`).join('');
+  document.getElementById("unitaTagContainer").innerHTML = appState.config.unita.map(u => `<span class="badge" style="background:#16a085;color:#fff;display:flex;align-items:center;gap:5px">${u} <span style="cursor:pointer;color:#ff7675" onclick="removeBaseItem('unita','${u}')">✖</span></span>`).join('');
+  document.getElementById("gruppiTagContainer").innerHTML = appState.config.gruppi.map(gr => `<span class="badge" style="background:#8e44ad;color:#fff;display:flex;align-items:center;gap:5px">${gr} <span style="cursor:pointer;color:#ff7675" onclick="removeBaseItem('gruppi','${gr}')">✖</span></span>`).join('');
+  document.getElementById('adminClosureList').innerHTML = appState.config.closures.map(c => `<li><span><b>${c.date}</b> - ${c.name}</span> <button type="button" class="btn-delete" onclick="deleteConfigItem('closures',${c.id})">X</button></li>`).join('');
+  
+  document.getElementById('adminUserList').innerHTML = appState.utenti.map(u => {
+    const optsGrado = `<option value="">-Grado-</option>` + appState.config.gradi.map(g => `<option value="${g}" ${u.grado===g?'selected':''}>${g}</option>`).join('');
+    const optsFunc = appState.config.funzioni.map(f => `<option value="${f}" ${u.funzione===f?'selected':''}>${f}</option>`).join('');
+    const optsUnita = `<option value="">-Unità-</option>` + appState.config.unita.map(un => `<option value="${un}" ${u.unita===un?'selected':''}>${un}</option>`).join('');
+    const optsGruppo = `<option value="">-Gruppo-</option>` + appState.config.gruppi.map(gr => `<option value="${gr}" ${u.gruppo===gr?'selected':''}>${gr}</option>`).join('');
+    return `<li>
+      <div style="flex:1;min-width:165px">
+        <b>N° ${u.nrPersonale} - ${u.cognome} ${u.nome}</b>
+        <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+          <select class="mini-select-input" id="qgrado_${u.nrPersonale}" onchange="aggiornaDirittiCollaboratore('${u.nrPersonale}')">${optsGrado}</select>
+          <select class="mini-select-input" id="qfunc_${u.nrPersonale}" onchange="aggiornaDirittiCollaboratore('${u.nrPersonale}')" style="background:#ebf5fb;border-color:#3498db">${optsFunc}</select>
+          <select class="mini-select-input" id="qunita_${u.nrPersonale}" onchange="aggiornaDirittiCollaboratore('${u.nrPersonale}')">${optsUnita}</select>
+          <select class="mini-select-input" id="qgruppo_${u.nrPersonale}" onchange="aggiornaDirittiCollaboratore('${u.nrPersonale}')">${optsGruppo}</select>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:.75rem;flex-wrap:wrap">
+        <label>V:<input type="number" class="mini-quota-input" id="qv_${u.nrPersonale}" value="${u.dirittoV??5}" min="0" max="8" onchange="aggiornaDirittiCollaboratore('${u.nrPersonale}')"></label>
+        <label>F:<input type="number" class="mini-quota-input" id="qf_${u.nrPersonale}" value="${u.dirittoF??0}" min="0" max="5" onchange="aggiornaDirittiCollaboratore('${u.nrPersonale}')"></label>
+        <label>PF:<input type="number" class="mini-quota-input" id="qpf_${u.nrPersonale}" value="${u.dirittoPF??0}" min="0" max="4" onchange="aggiornaDirittiCollaboratore('${u.nrPersonale}')"></label>
+        <label>%:<input type="number" class="mini-quota-input" id="qperc_${u.nrPersonale}" value="${u.percentuale??100}" min="10" max="100" step="5" style="width:46px!important" onchange="aggiornaDirittiCollaboratore('${u.nrPersonale}')"></label>
+        <label style="color:#d35400;font-weight:700">Pt.${annoPrec}:<input type="number" class="mini-quota-input" id="qpt_${u.nrPersonale}" value="${u.puntiAnnoPrec??0}" step="1" style="width:52px!important;border-color:#f39c12" onchange="aggiornaDirittiCollaboratore('${u.nrPersonale}')"></label>
+        <button type="button" class="btn" style="background:#f39c12;color:#000;padding:2px 6px;font-size:.7rem" onclick="resetPasswordCollaboratoreDaAdmin('${u.nrPersonale}')" title="Ripristina la password uguale al Nr. Personale">🔑 Reset</button>
+        <button type="button" class="btn-delete" onclick="deleteCollaborator('${u.nrPersonale}')">X</button>
+      </div>
+    </li>`;
+  }).join('');
+
+  document.getElementById('adminUnifiedRulesList').innerHTML = appState.config.unifiedRules.map(r => {
+    const pTxt = r.periodType === 'weeks' ? `Sett: <b>${r.weeks}</b>` : `Dal <b>${r.start}</b> al <b>${r.end}</b>`;
+    if (r.kind === 'format') return `<li><span>🎨 <b>[Formattazione]</b> ${pTxt} — <i>"${r.comment||''}"</i></span><div style="display:flex;align-items:center;gap:10px"><span class="badge" style="background:${r.color};color:#000;border:1px solid #555">Colore</span><button type="button" class="btn-delete" onclick="deleteConfigItem('unifiedRules',${r.id})">X</button></div></li>`;
+    let v = [];
+    if (r.maxConcurrent !== undefined && r.maxConcurrent !== "") v.push(`Max Contemp: <b>${r.maxConcurrent}</b>`);
+    if (r.maxConsecutive !== undefined && r.maxConsecutive !== "") v.push(`<span style="color:#c0392b">Max Consec: <b>${r.maxConsecutive}</b></span>`);
+    if (r.maxTotalInPeriod !== undefined && r.maxTotalInPeriod !== "") v.push(`<span style="color:#c0392b">Max Periodo: <b>${r.maxTotalInPeriod}</b></span>`);
+    v.push(`Tipi: <b>[${Array.isArray(r.allowedTypes)?r.allowedTypes.join(','):'V,F,P'}]</b>`);
+    return `<li><span>🛑 <b>[Tornata: ${r.tornata}]</b> ${pTxt} | Target: <b style="color:#2980b9">[${formatRuleTargetBadge(r)}]</b> | ${v.join(" | ")} ${r.label?`— <i>${r.label}</i>`:''}</span><button type="button" class="btn-delete" onclick="deleteConfigItem('unifiedRules',${r.id})">X</button></li>`;
+  }).join('');
+
+  document.getElementById("functionOnlyRolesContainer").innerHTML = appState.config.funzioni.map(f => {
+    const isFOnly = isRoleFunctionOnly(f);
+    return `<span class="role-chip ${isFOnly?'active':''}" onclick="toggleRoleFunctionOnlyMode('${f}')">${isFOnly?'🛡️ '+f+' (Solo Funzione)':'🏢 '+f+' (Segue anche Unità/Gruppo)'}</span>`;
+  }).join('');
+  document.getElementById("rankingRolesContainer").innerHTML = appState.config.funzioni.map(f => {
+    const active = isRoleInRankingMode(f);
+    return `<span class="role-chip ${active?'active':''}" style="${active?'background:#d35400;border-color:#a04000':''}" onclick="toggleRoleRankingMode('${f}')">${active?'🏆 ':''}${f} ${active?'(Ranking Attivo)':'(Collaborativo)'}</span>`;
+  }).join('');
+
+  let htmlPts = ""; for (let w = 1; w <= 53; w++) htmlPts += `<div class="pts-item"><span>Sett. ${w}</span><input type="number" value="${getPuntiSettimana(w)}" min="0" max="100" step="1" onchange="aggiornaSingoloPunteggioSettimana(${w}, this.value)"></div>`;
+  document.getElementById("adminPointsGrid").innerHTML = htmlPts;
+}
+
+async function aggiornaDirittiCollaboratore(nrP) {
+  const u = appState.utenti.find(x => String(x.nrPersonale) === String(nrP)); if (!u) return;
+  const annoPrec = (Number(appState.config.anno) || 2027) - 1;
+  u.grado = document.getElementById(`qgrado_${nrP}`).value; u.funzione = document.getElementById(`qfunc_${nrP}`).value;
+  u.unita = document.getElementById(`qunita_${nrP}`).value; u.gruppo = document.getElementById(`qgruppo_${nrP}`).value;
+  u.dirittoV = parseInt(document.getElementById(`qv_${nrP}`).value)||0; u.dirittoF = parseInt(document.getElementById(`qf_${nrP}`).value)||0;
+  u.dirittoPF = parseInt(document.getElementById(`qpf_${nrP}`).value)||0; u.percentuale = parseInt(document.getElementById(`qperc_${nrP}`).value)||100;
+  u.puntiAnnoPrec = parseFloat(document.getElementById(`qpt_${nrP}`).value)||0;
+
+  let recSt = appState.storicoRanking.find(r => Number(r.anno) === annoPrec && String(r.nrPersonale) === String(nrP));
+  if (recSt) { recSt.funzione = u.funzione; recSt.puntiTotali = u.puntiAnnoPrec; recSt.mediaPunti = u.puntiAnnoPrec; }
+  else appState.storicoRanking.push({anno:annoPrec, nrPersonale:nrP, cognomeNome:`${u.cognome} ${u.nome}`, funzione:u.funzione, settimane:0, giorni:0, puntiTotali:u.puntiAnnoPrec, mediaPunti:u.puntiAnnoPrec, posizione:1, dataCons:"Manuale"});
+  if (appState.utenteLoggato && String(appState.utenteLoggato.nrPersonale) === String(nrP)) { appState.utenteLoggato = u; aggiornaBadgeUtente(); }
+  renderCalendar();
+  try { await chiamaServer({azione:"aggiornaDirittiUtente",nrPersonale:nrP,cognomeNome:`${u.cognome} ${u.nome}`,grado:u.grado,funzione:u.funzione,unita:u.unita,gruppo:u.gruppo,annoPrec,percentuale:u.percentuale,dirittoV:u.dirittoV,dirittoF:u.dirittoF,dirittoPF:u.dirittoPF,puntiAnnoPrec:u.puntiAnnoPrec}); } catch(e) {}
+}
+
+async function addBaseItem(listKey, inputId) {
+  const v = document.getElementById(inputId).value.trim();
+  if (v && !appState.config[listKey].includes(v)) {
+    appState.config[listKey].push(v); popolaTutteDropdownFunzioni(); renderAdminData(); renderCalendar();
+    try { await chiamaServer({azione:"salvaFunzioniBase",funzioniList:appState.config.funzioni,punteggiSettimane:appState.config.punteggiSettimane,gradiList:appState.config.gradi,unitaList:appState.config.unita,gruppiList:appState.config.gruppi}); } catch(e) {}
+  }
+  document.getElementById(inputId).value = "";
+}
+async function removeBaseItem(listKey, valName) {
+  appState.config[listKey] = appState.config[listKey].filter(x => x !== valName);
+  popolaTutteDropdownFunzioni(); renderAdminData(); renderCalendar();
+  try { await chiamaServer({azione:"salvaFunzioniBase",funzioniList:appState.config.funzioni,punteggiSettimane:appState.config.punteggiSettimane,gradiList:appState.config.gradi,unitaList:appState.config.unita,gruppiList:appState.config.gruppi}); } catch(e) {}
+}
+
+function addUnifiedRule() {
+  const kind = document.getElementById("ruleKind").value, periodType = document.getElementById("rulePeriodType").value;
+  const weeks = document.getElementById("ruleWeeksInput").value.trim(), start = document.getElementById("ruleDateStart").value, end = document.getElementById("ruleDateEnd").value;
+  if (periodType === 'weeks' && !weeks) { alert("Inserisci le settimane!"); return; }
+  if (periodType === 'dates' && (!start || !end)) { alert("Seleziona le date!"); return; }
+  if (kind === 'format') {
+    appState.config.unifiedRules.push({id:Date.now(),kind:'format',periodType,weeks,start,end,color:document.getElementById("formatColorInput").value,comment:document.getElementById("formatCommentInput").value.trim()});
+  } else {
+    const selVals = Array.from(document.getElementById("absTargetGroup").selectedOptions).map(o => o.value);
+    const selUVals = Array.from(document.getElementById("absTargetUnita").selectedOptions).map(o => o.value);
+    const selGVals = Array.from(document.getElementById("absTargetGruppo").selectedOptions).map(o => o.value);
+    const rawConc = document.getElementById("absMaxConcurrent").value.trim(), rawCons = document.getElementById("absMaxConsecutive").value.trim(), rawTot = document.getElementById("absMaxTotalInPeriod").value.trim();
+    const aT = []; if (document.getElementById("chkAllowV").checked) aT.push("V"); if (document.getElementById("chkAllowF").checked) aT.push("F"); if (document.getElementById("chkAllowP").checked) aT.push("P");
+    appState.config.unifiedRules.push({
+      id:Date.now(), kind:'absence', tornata:document.getElementById("absTornata").value, periodType, weeks, start, end,
+      targetGroup:(selVals.length===0||selVals.includes("TUTTI"))?"TUTTI":selVals.join("+"),
+      targetUnita:(selUVals.length===0||selUVals.includes("TUTTE"))?"TUTTE":(selUVals.includes("OGNI_UNITA")?"OGNI_UNITA":selUVals.join("+")),
+      targetGruppo:(selGVals.length===0||selGVals.includes("TUTTI"))?"TUTTI":(selGVals.includes("OGNI_GRUPPO")?"OGNI_GRUPPO":selGVals.join("+")),
+      maxConcurrent:rawConc!==""?parseInt(rawConc,10):"", maxConsecutive:rawCons!==""?parseInt(rawCons,10):"", maxTotalInPeriod:rawTot!==""?parseInt(rawTot,10):"",
+      allowedTypes:aT, label:document.getElementById("absRuleLabel").value.trim()
+    });
+  }
+  renderAdminData();
+}
+
+function updateYear() { const a = parseInt(document.getElementById('adminYear').value)||2027; appState.config.anno = a; document.getElementById('navYear').innerText = a; sincronizzaPuntiAnnoPrecedenteDaStorico(); generaGiorniESettimaneAnno(a); renderAdminData(); }
+function addClosure() { const d = document.getElementById('closureDate').value, n = document.getElementById('closureName').value; if (d && n) { appState.config.closures.push({id:Date.now(),date:d,name:n}); renderAdminData(); } }
+
+// Quando l'Admin aggiunge un collaboratore, la password iniziale è uguale al suo Numero Personale (nr)!
+async function addCollaborator() {
+  const nr = document.getElementById('addUserNr').value.trim(), fN = document.getElementById('addUserName').value.trim();
+  const grado = document.getElementById('addUserGrado').value, role = document.getElementById('addUserRole').value;
+  const unita = document.getElementById('addUserUnita').value, gruppo = document.getElementById('addUserGruppo').value;
+  const perc = parseInt(document.getElementById('addUserPerc').value)||100, dV = parseInt(document.getElementById('addUserDirV').value)||0, dF = parseInt(document.getElementById('addUserDirF').value)||0, dPF = parseInt(document.getElementById('addUserDirPF').value)||0, ptPrec = parseFloat(document.getElementById('addUserPtPrec').value)||0;
+  if (!nr || !fN) { alert("Inserisci Nr. Personale e Cognome Nome!"); return; }
+  const parts = fN.split(" "), cognome = parts[0], nome = parts.slice(1).join(" ")||"";
+  try {
+    const ris = await chiamaServer({azione:"registra",nrPersonale:nr,nome,cognome,grado,funzione:role,unita,gruppo,percentuale:perc,dirittoV:dV,dirittoF:dF,dirittoPF:dPF,puntiAnnoPrec:ptPrec,password:nr});
+    if (!ris.successo) { alert(ris.messaggio); return; }
+  } catch(e) {}
+  appState.utenti.push({nrPersonale:nr,nome,cognome,grado,funzione:role,unita,gruppo,percentuale:perc,dirittoV:dV,dirittoF:dF,dirittoPF:dPF,puntiAnnoPrec:ptPrec});
+  document.getElementById('addUserNr').value = ''; document.getElementById('addUserName').value = ''; renderAdminData();
+}
+
+async function deleteCollaborator(nrP) { if (!confirm(`Rimuovere collaboratore N° ${nrP}?`)) return; try { await chiamaServer({azione:"eliminaUtente",nrPersonale:nrP}); } catch(e) {} appState.utenti = appState.utenti.filter(u => String(u.nrPersonale) !== String(nrP)); renderAdminData(); }
+function deleteConfigItem(listName, id) { appState.config[listName] = appState.config[listName].filter(item => item.id !== id); renderAdminData(); }
+
+async function salvaTuttoSuGoogle() {
+  const errOverlap = validaDateTornate(); if (errOverlap) { alert("🛑 Impossibile salvare!\n\n" + errOverlap); return; }
+  appState.config.manualActiveTornata = document.getElementById("manualTornataSelect").value;
+  appState.config.rankingMetric = document.getElementById("selRankingMetric").value;
+  appState.config.tornate = [1, 2, 3].map(n => ({id:n, nome:`${n}ª Tornata (${n}° Giro)`, inizio:document.getElementById(`t${n}_start`).value, fine:document.getElementById(`t${n}_end`).value, colorV:document.getElementById(`t${n}_colV`).value, colorF:document.getElementById(`t${n}_colF`).value, colorP:document.getElementById(`t${n}_colP`).value}));
+  appState.config.anno = parseInt(document.getElementById("adminYear").value)||2027;
+  appState.config.maxWeeks = parseInt(document.getElementById("maxWeeks").value)||8;
+  sincronizzaPuntiAnnoPrecedenteDaStorico(); aggiornaUIStatoTornateAdmin(); aggiornaBannerTornata(); generaGiorniESettimaneAnno(appState.config.anno); renderCalendar();
+  try {
+    const ris = await chiamaServer({
+      azione:"salvaConfigAdmin",
+      tornateData:{manualActive:appState.config.manualActiveTornata,list:appState.config.tornate,rankingRoles:appState.config.rankingRoles,functionOnlyRoles:appState.config.functionOnlyRoles,rankingMetric:appState.config.rankingMetric,rankingTurnIndex:appState.config.rankingTurnIndex},
+      anno:appState.config.anno, maxWeeks:appState.config.maxWeeks, funzioni:appState.config.funzioni.join(","),
+      gradiList:appState.config.gradi, unitaList:appState.config.unita, gruppiList:appState.config.gruppi,
+      punteggiSettimane:appState.config.punteggiSettimane, closures:appState.config.closures, unifiedRules:appState.config.unifiedRules
+    });
+    alert(ris.messaggio);
+  } catch(e) { alert("Errore salvataggio: " + e.message); }
+}
+
+async function esportaCalendarioExcelFormattato() {
+  if (typeof ExcelJS === "undefined") { alert("Libreria ExcelJS non caricata."); return; }
+  const btn1 = document.getElementById("btnExportExcel"), btn2 = document.getElementById("btnExportExcelAdmin");
+  if (btn1) { btn1.disabled = true; btn1.innerText = "⏳ Excel..."; }
+  if (btn2) { btn2.disabled = true; btn2.innerText = "⏳ Excel..."; }
+  try {
+    const year = appState.config.anno, weeks = appState.weeksMap, utentiDaEsportare = appState.utenti.filter(u => utentePassaFiltroMultiFunzione(u));
+    const wb = new ExcelJS.Workbook(), ws = wb.addWorksheet(`Assenze ${year}`, { views: [{ state:'frozen', xSplit:7, ySplit:4 }] });
+    const hexToArgb = (hex) => { if (!hex) return "FFFFFFFF"; let c = String(hex).replace("#","").trim(); if (c.length===3) c = c.split('').map(x=>x+x).join(''); return "FF" + c.toUpperCase(); };
+    const borderThin = { top:{style:'thin',color:{argb:'FF555555'}}, left:{style:'thin',color:{argb:'FF555555'}}, bottom:{style:'thin',color:{argb:'FF555555'}}, right:{style:'thin',color:{argb:'FF555555'}} };
+    const colWidths = [11, 29, 8, 8, 8, 6, 7]; weeks.forEach(() => colWidths.push(4.2)); ws.columns = colWidths.map(w => ({ width: w }));
+
+    let monthGroups = [];
+    weeks.forEach(w => {
+      if (monthGroups.length === 0 || monthGroups[monthGroups.length-1].monthName !== w.headerMonth) monthGroups.push({ monthName:w.headerMonth, count:1, lastWeekKey:w.key });
+      else { monthGroups[monthGroups.length-1].count++; monthGroups[monthGroups.length-1].lastWeekKey = w.key; }
+    });
+    const monthEndKeys = new Set(monthGroups.map(mg => mg.lastWeekKey));
+
+    ws.getRow(1).height = 22; ws.mergeCells(1, 1, 1, 7);
+    const titleCell = ws.getCell(1, 1); titleCell.value = `Assenze ${year}`; titleCell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FFFFFF00'} }; titleCell.font = { name:'Arial', size:12, bold:true, color:{argb:'FFFF0000'} }; titleCell.alignment = { vertical:'middle', horizontal:'center' };
+    let colCursor = 8;
+    monthGroups.forEach(mg => {
+      const sC = colCursor, eC = colCursor + mg.count - 1;
+      if (eC > sC) ws.mergeCells(1, sC, 1, eC);
+      ws.getCell(1, sC).value = mg.monthName;
+      for (let c = sC; c <= eC; c++) {
+        const cell = ws.getCell(1, c); cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FFD9D9D9'} }; cell.font = { name:'Arial', size:10, bold:true }; cell.alignment = { vertical:'middle', horizontal:'center' };
+        cell.border = { top:{style:'medium',color:{argb:'FF000000'}}, bottom:{style:'medium',color:{argb:'FF000000'}}, left:c===sC?{style:'medium',color:{argb:'FF000000'}}:borderThin.left, right:c===eC?{style:'medium',color:{argb:'FF000000'}}:borderThin.right };
+      }
+      colCursor += mg.count;
+    });
+
+    ws.getRow(2).height = 68; ws.getRow(3).height = 18; ws.getRow(4).height = 16;
+    ws.mergeCells(2, 1, 4, 1); ws.getCell(2, 1).value = "N°"; ws.mergeCells(2, 2, 4, 2); ws.getCell(2, 2).value = "Grado / Cognome Nome";
+    const hR2 = ["","","V - Vac.","F - FLAZ","P - pr.fed.","%","Pt."], hR3 = ["","","Settimane","Settimane","Singoli","%",appState.config.rankingMetric==="MEDIA"?"Media":"Tot."];
+    for (let c = 1; c <= 7; c++) {
+      if (c >= 3) { ws.getCell(2, c).value = hR2[c-1]; ws.mergeCells(3, c, 4, c); ws.getCell(3, c).value = hR3[c-1]; }
+      for (let r = 2; r <= 4; r++) {
+        const cell = ws.getCell(r, c); cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:c===7?'FFFEF9E7':'FFF2F2F2'} }; cell.font = { name:'Arial', size:8.5, bold:true }; cell.alignment = { vertical:'middle', horizontal:'center', wrapText:true }; cell.border = Object.assign({}, borderThin, c===7?{right:{style:'medium',color:{argb:'FF000000'}}}:{});
+      }
+    }
+
+    weeks.forEach((w, idx) => {
+      const colIdx = 8 + idx, fmt = getWeekFormatInfo(w), hasC = appState.weekConflictsSet.has(w.key), bRight = monthEndKeys.has(w.key) ? {style:'medium',color:{argb:'FF000000'}} : borderThin.right;
+      const cR2 = ws.getCell(2, colIdx); cR2.value = w.rangeLabel; cR2.alignment = { vertical:'middle', horizontal:'center', textRotation:90 }; cR2.font = { name:'Arial', size:8, bold:true };
+      if (fmt.color) cR2.fill = { type:'pattern', pattern:'solid', fgColor:{argb:hexToArgb(fmt.color)} }; if (fmt.comment) cR2.note = `Sett. ${w.weekNum}: ${fmt.comment}`; cR2.border = Object.assign({}, borderThin, { right:bRight });
+      const cR3 = ws.getCell(3, colIdx); cR3.value = w.weekNum; cR3.alignment = { vertical:'middle', horizontal:'center' }; cR3.font = { name:'Arial', size:9, bold:true, color:{argb:hasC?'FFFFFFFF':'FF000000'} };
+      if (hasC) cR3.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FFE74C3C'} }; else if (fmt.color) cR3.fill = { type:'pattern', pattern:'solid', fgColor:{argb:hexToArgb(fmt.color)} }; cR3.border = Object.assign({}, borderThin, { right:bRight });
+      const cR4 = ws.getCell(4, colIdx); cR4.value = `${w.punti}pt`; cR4.alignment = { vertical:'middle', horizontal:'center' }; cR4.font = { name:'Arial', size:7.5, bold:true, color:{argb:'FFB7950B'} }; cR4.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FFFEF9E7'} }; cR4.border = Object.assign({}, borderThin, { right:bRight, bottom:{style:'medium',color:{argb:'FF000000'}} });
+    });
+
+    let curRow = 5;
+    utentiDaEsportare.forEach((user, idx) => {
+      ws.getRow(curRow).height = 18;
+      const tot = calcolaTotaliUtente(user.nrPersonale), qV = formatQuotaCell(tot.vCount, user.dirittoV??5), qF = formatQuotaCell(tot.fCount, user.dirittoF??5), qP = formatQuotaCell(tot.pCount, user.dirittoPF??0);
+      const c1 = ws.getCell(curRow, 1); c1.value = user.nrPersonale || (idx+1); c1.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FFD9D9D9'} }; c1.font = { name:'Arial', size:8.5, bold:true }; c1.alignment = { vertical:'middle', horizontal:'center' }; c1.border = borderThin;
+      const c2 = ws.getCell(curRow, 2); c2.value = `${user.grado?user.grado+' ':''}${user.cognome} ${user.nome} (${user.funzione})`; c2.font = { name:'Arial', size:9, bold:true }; c2.alignment = { vertical:'middle', horizontal:'left' }; c2.note = buildUserTooltipComment(user).replace(/ \| /g, "\n"); c2.border = borderThin;
+      [qV.text, qF.text, qP.text, Number(user.percentuale||100), Number(tot.displayPunti)].forEach((v, i) => {
+        const cell = ws.getCell(curRow, 3+i); cell.value = v; cell.font = { name:'Arial', size:8.5, bold:true }; cell.alignment = { vertical:'middle', horizontal:'center' }; cell.border = Object.assign({}, borderThin, i===4?{right:{style:'medium',color:{argb:'FF000000'}}}:{});
+      });
+      weeks.forEach((w, wIdx) => {
+        const cell = ws.getCell(curRow, 8+wIdx), fmt = getWeekFormatInfo(w), foundRec = getUserWeekRecord(user.nrPersonale, w), bRight = monthEndKeys.has(w.key) ? {style:'medium',color:{argb:'FF000000'}} : borderThin.right;
+        if (foundRec) {
+          const disp = foundRec.tipo === 'CORSO' ? 'K' : foundRec.tipo, colObj = getAbsenceCellColor(disp, foundRec.tornata);
+          cell.value = disp; cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:hexToArgb(colObj.bg)} }; cell.font = { name:'Arial', size:9, bold:true, color:{argb:hexToArgb(colObj.fg)} };
+        } else if (fmt.color) cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:hexToArgb(fmt.color)} };
+        cell.alignment = { vertical:'middle', horizontal:'center' }; cell.border = Object.assign({}, borderThin, { right:bRight });
+      });
+      curRow++;
+    });
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const url = window.URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = `Piano_Vacanze_Dogana_Chiasso_${year}.xlsx`; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(url);
+  } catch(err) { alert("Errore Excel: " + err.message); }
+  if (btn1) { btn1.disabled = false; btn1.innerText = "📥 Esporta Excel (.xlsx)"; }
+  if (btn2) { btn2.disabled = false; btn2.innerText = "📥 Esporta Calendario Excel (.xlsx)"; }
+}
+
+setInterval(async function() {
+  if (!appState.utenteLoggato || document.hidden) return;
+  if (document.getElementById('viewAdmin').classList.contains('active') || document.getElementById('rankingModal').style.display === 'flex' || document.getElementById('reportProbModal').style.display === 'flex') return;
+  await caricaDatiServer(true);
+}, 90000);
+</script>
+<!-- MODALE LEGENDA COLORI E SIMBOLI -->
+<div id="legendaModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-card large-modal" style="max-width:780px">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #eee;padding-bottom:10px;margin-bottom:12px">
+      <h2 style="margin:0;border:none;padding:0;color:#2c3e50">ℹ️ Guida Rapida: Legenda Colori, Simboli e Sigle</h2>
+      <button type="button" class="btn" style="background:#7f8c8d" onclick="document.getElementById('legendaModal').style.display='none'">✖ Chiudi</button>
+    </div>
+
+    <table class="report-table" style="font-size:.82rem">
+      <thead>
+        <tr>
+          <th style="width:230px">Elemento Visivo / Simbolo</th>
+          <th>Significato nel Calendario</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span style="display:inline-block;background:#d9ead3;padding:3px 10px;border:1px solid #888;font-weight:700;width:90%">Sgtm Cognome Nome</span></td>
+          <td><b>La tua riga personale:</b> Evidenzia in verde chiaro la riga dell'utente attualmente collegato.</td>
+        </tr>
+        <tr>
+          <td><span style="display:inline-block;background:#FCF3CF;border-left:5px solid #f39c12;padding:3px 8px;font-weight:700;width:90%">App Cognome Nome 🟢</span></td>
+          <td><b>Di turno ora nel Ranking:</b> Indica quale collaboratore (per le funzioni con <i>Modalità Ranking</i> attiva, es. <code>REV</code> e <code>AssD</code>) ha il diritto di inserire le vacanze in questo momento.</td>
+        </tr>
+        <tr>
+          <td><span class="has-comment" style="display:inline-block;padding:3px 12px;border:1px solid #888;font-weight:700;background:#fff">Cella con triangolino rosso</span></td>
+          <td><b>Commento informativo (stile Excel):</b> Passando il mouse sopra il nome mostra <i>Grado, Funzione, Unità, Gruppo e Punti</i>; passando sopra la data di una settimana mostra il nome della festività o vacanza scolastica.</td>
+        </tr>
+        <tr>
+          <td>
+            <span style="display:inline-block;background:#ffff00;padding:2px 8px;border:1px solid #555;font-weight:700">V</span>
+            <span style="display:inline-block;background:#bfbfbf;padding:2px 8px;border:1px solid #555;font-weight:700;margin-left:4px">F</span>
+            <span style="display:inline-block;background:#ff99cc;padding:2px 8px;border:1px solid #555;font-weight:700;margin-left:4px">P</span>
+          </td>
+          <td><b>Assenze Pianificate dal Collaboratore:</b><br>• <b>V</b> = Vacanza ordinaria &nbsp;|&nbsp; • <b>F</b> = FLAZ (Compensazione) &nbsp;|&nbsp; • <b>P</b> = Premio Fedeltà (PF).</td>
+        </tr>
+        <tr>
+          <td>
+            <span style="display:inline-block;background:#8e44ad;color:#fff;padding:2px 8px;border:1px solid #555;font-weight:700">K</span>
+            <span style="display:inline-block;background:#8e44ad;color:#fff;padding:2px 8px;border:1px solid #555;font-weight:700;margin-left:4px">MIL</span>
+          </td>
+          <td><b>Assenze di Servizio (Inserite dall'Admin):</b><br>• <b>K</b> = Corso / Formazione &nbsp;|&nbsp; • <b>MIL</b> = Servizio Militare / Protezione Civile.<br><small><i>Non consumano settimane di diritto (V/F/PF) e non generano punti per il Ranking.</i></small></td>
+        </tr>
+        <tr>
+          <td><span style="display:inline-block;background:#ffccff;padding:2px 10px;border:1px solid #555;font-weight:700">Colonna Rosa</span></td>
+          <td><b>Vacanze Scolastiche / Periodi di Picco:</b> Indica le settimane di vacanza scolastica (Carnevale, Pasqua, Estate sett. 24-34, Morti, Natale).</td>
+        </tr>
+        <tr>
+          <td><span class="cell-conflict" style="display:inline-block;background:#ffff00;padding:2px 8px;font-weight:700">V⚠️</span></td>
+          <td><b>Conflitto / Sovrapposizione attiva:</b> In quella settimana è stato superato il numero massimo di assenze contemporanee previsto per la funzione o il gruppo. Passa il mouse sulla cella per leggere i dettagli.</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="quota-partial" style="padding:2px 6px;border:1px solid #ccc">2/5</span>
+            <span class="quota-ok" style="padding:2px 6px;border:1px solid #ccc;margin-left:4px">5/5</span>
+            <span class="quota-exceeded" style="padding:2px 6px;border:1px solid #ccc;margin-left:4px">6/5</span>
+          </td>
+          <td><b>Contatori Settimane (Usate / Spettanti):</b><br>• <b>Blu (2/5):</b> Settimane ancora disponibili &nbsp;|&nbsp; • <b>Verde (5/5):</b> Quota completata &nbsp;|&nbsp; • <b>Rosso (6/5):</b> Quota superata.</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="role-chip">🛡️Cgr</span>
+            <span class="role-chip" style="margin-left:4px">🏆REV</span>
+          </td>
+          <td><b>Icone nei Filtri Funzione:</b><br>• <b>🛡️ (Scudo):</b> Funzione trasversale (segue solo le regole della propria funzione, ignorando Unità/Gruppo).<br>• <b>🏆 (Coppa):</b> Funzione con scelta a turni secondo la Graduatoria Ranking.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 </body>
 </html>
